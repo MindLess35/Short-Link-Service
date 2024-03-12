@@ -1,9 +1,8 @@
 package com.shortlink.webapp.service;
 
+import com.shortlink.webapp.dto.projection.TopLinkSourceSitesProjection;
 import com.shortlink.webapp.entity.Link;
 import com.shortlink.webapp.entity.LinkStatistics;
-import com.shortlink.webapp.exception.LifeTimeExpiredException;
-import com.shortlink.webapp.exception.LinkStatisticsNotExistsException;
 import com.shortlink.webapp.repository.LinkRepository;
 import com.shortlink.webapp.repository.LinkStatisticsRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,16 +49,24 @@ public class LinkStatisticsService {
 //    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean iskLifeTimeExpired(LinkStatistics linkStatistics) {
+    public boolean isLifeTimeExpired(LinkStatistics linkStatistics) {
         Long lifeTime = linkStatistics.getLifeTime();
         if (linkStatistics
                 .getDateOfCreation()
-                .plus(lifeTime, ChronoUnit.SECONDS)
+                .plusSeconds(lifeTime)
                 .isBefore(LocalDateTime.now())) {
             linkRepository.delete(linkStatistics.getLink());
 //            linkRepository.flush();
             return true;
         }
         return false;
+    }
+
+    public List<TopLinkSourceSitesProjection> getTopLinkSourceSites(Short top) {
+        return linkStatisticsRepository.getTopLinkSourceSites(top);
+    }
+
+    public Long getCountAllClicks() {
+        return linkStatisticsRepository.sumByCountOfUses();
     }
 }

@@ -22,8 +22,10 @@ public class LinkStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-@JsonIgnore
-    @JoinColumn(name = "link_id")
+
+    //    @JoinColumn(name = "link_id")
+//    @JoinColumn(name = "link_id", nullable = false , insertable = false, updatable = false)
+//    @JoinColumn(name = "link_id", nullable = false, insertable = true, updatable = true)
     @OneToOne(fetch = FetchType.LAZY)
     private Link link;
 

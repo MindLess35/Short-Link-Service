@@ -1,13 +1,13 @@
-package com.shortlink.webapp.service;
+package com.shortlink.webapp.integration.service;
 
+import com.shortlink.webapp.integration.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class LinkServiceTest {
+class LinkServiceIT extends IntegrationTestBase {
 
     @Test
     void createLink() {
+//        assertThat()
     }
 
     @Test

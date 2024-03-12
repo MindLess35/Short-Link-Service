@@ -15,4 +15,16 @@ databaseChangeLog:
       file: db/changelog/db.chlog-init-db-1.6.sql
   - include:
       file: db/changelog/db.chlog-init-db-1.7.sql
+  - include:
+      file: db/changelog/db.chlog-init-db-1.8.sql
+  - include:
+      file: db/changelog/db.chlog-init-db-1.9.sql
+  - include:
+      file: db/changelog/db.chlog-init-db-1.10.sql
+  - include:
+      file: db/changelog/db.chlog-init-db-1.11.sql
+#databaseChangeLog:
+#  - includeAll:
+#      path: classpath:db/changelog/
+#      relativeToChangelogFile: true
 

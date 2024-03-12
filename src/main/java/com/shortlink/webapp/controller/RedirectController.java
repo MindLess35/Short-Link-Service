@@ -31,7 +31,7 @@ public class RedirectController {
     }
 
     @GetMapping("/{short-link-name}")
-    public ResponseEntity<HttpStatus> redirect(@PathVariable("short-link-name") String shortLinkName) {
+    public ResponseEntity<HttpStatus> redirectByOriginalLink(@PathVariable("short-link-name") String shortLinkName) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", linkService.getOriginalLink(shortLinkName));
 

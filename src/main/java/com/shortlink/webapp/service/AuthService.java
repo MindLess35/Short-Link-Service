@@ -17,8 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
@@ -91,7 +89,6 @@ public class AuthService {
 //                .build();
     }
 
-    @Transactional
     private void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
                 .user(user)
@@ -124,16 +121,23 @@ public class AuthService {
 //        });
 //        tokenRepository.saveAll(validUserTokens);
 //    }
-    @Transactional
+//    @Transactional
+//    private void revokeAllUserTokens(User user) {
+//        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUserId(user.getId());
+//        if (validUserTokens.isEmpty())
+//            return;
+//        validUserTokens.forEach(token -> {
+//            token.setExpired(true);
+//            token.setRevoked(true);
+//        });
+//        tokenRepository.saveAll(validUserTokens);
+//    }
     private void revokeAllUserTokens(User user) {
-        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRepository.findAllValidTokenByUserId(user.getId())
+                .forEach(token -> {
+                    token.setExpired(true);
+                    token.setRevoked(true);
+                });
     }
 
     @Transactional
@@ -147,10 +151,11 @@ public class AuthService {
         refreshToken = authHeader.substring(7);
         username = jwtService.extractUsername(refreshToken);
         if (username != null) {
-            User user = this.userRepository.findByUsername(username)
+            User user = userRepository.findByUsername(username)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 String accessToken = jwtService.generateToken(user);
+
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 return new JwtResponseDto(accessToken, refreshToken);
@@ -158,6 +163,7 @@ public class AuthService {
         }
         throw new InvalidJwtException("jwt is invalid");
     }
+
 }
 
 

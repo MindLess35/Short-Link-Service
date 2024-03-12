@@ -1,5 +1,7 @@
 package com.shortlink.webapp.dto.request;
 
+import com.shortlink.webapp.validation.annotation.Password;
+import com.shortlink.webapp.validation.annotation.UniqueEmail;
 import com.shortlink.webapp.validation.annotation.Username;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.context.annotation.PropertySource;
 
 @Getter
 @Setter
@@ -15,14 +18,15 @@ import lombok.Setter;
 public class UserCreateEditDto {
 
     @Username
-    @NotBlank
+    @NotBlank(message = "{username.notblank}")
     private String username;
 
-//    @Email
-    @NotBlank
+    @UniqueEmail
+    @Email(message = "{email.valid}")
+    @NotBlank(message = "{email.notblank}")
     private String email;
 
-
-    @NotBlank
+    @Password
+    @NotBlank(message = "{password.notblank}")
     private String password;
 }

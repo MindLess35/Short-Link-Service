@@ -1,6 +1,7 @@
 package com.shortlink.webapp.dto.request;
 
-import com.shortlink.webapp.validation.annotation.UniqueShortLinkName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.shortlink.webapp.validation.annotation.UniqueShortLink;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,10 @@ public class LinkCreateEditDto {
 
     private String key;
 
-    @UniqueShortLinkName
+    @UniqueShortLink
     private String customLinkName;
+
+//    public void setShortLink(String shortLink) {
+//        this.customLinkName = shortLink;
+//    }
 }

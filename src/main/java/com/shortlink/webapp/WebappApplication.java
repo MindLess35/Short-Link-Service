@@ -10,9 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static com.shortlink.webapp.entity.enums.Role.ADMIN;
@@ -38,6 +36,7 @@ public class WebappApplication {
             User admin = User.builder()
                     .username("Admin")
                     .email("admin@gmail.com")
+                    .email("admin@gmail.com")
                     .password(passwordEncoder.encode("admin"))
                     .role(ADMIN)
                     .build();
@@ -54,7 +53,6 @@ public class WebappApplication {
                         .build();
                 tokenRepository.save(token);
             }
-
 
 
             User manager = User.builder()

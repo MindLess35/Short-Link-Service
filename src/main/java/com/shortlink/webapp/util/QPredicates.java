@@ -1,4 +1,4 @@
-package com.shortlink.webapp.querydsl;
+package com.shortlink.webapp.util;
 
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class QPredicates {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)  // for queryDSL
+public final class QPredicates {
 
     private final List<Predicate> predicates = new ArrayList<>();
 

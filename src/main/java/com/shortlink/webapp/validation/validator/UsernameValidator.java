@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class UsernameValidator implements ConstraintValidator<Username, String> {
 
     private final UserRepository userRepository;
-    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_]{3,25}$";
+    private static final String USERNAME_PATTERN = "^(?!.*\\s)[A-Za-z0-9!@#$%^&*_\\-]{4,32}$";
 
     @Override
     public boolean isValid(String username, ConstraintValidatorContext context) {

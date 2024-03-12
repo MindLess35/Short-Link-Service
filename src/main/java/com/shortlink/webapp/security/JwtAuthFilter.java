@@ -1,4 +1,4 @@
-package com.shortlink.webapp.jwt;
+package com.shortlink.webapp.security;
 
 import com.shortlink.webapp.repository.TokenRepository;
 import com.shortlink.webapp.service.JwtService;

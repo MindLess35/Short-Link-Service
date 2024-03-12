@@ -1,8 +1,5 @@
-util:
-  count-of-random-uri-characters: 6
-
-http:
-  url: http://localhost:8080/
+link:
+  count-of-random-url-characters: 6
 
 jwt:
   secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
@@ -19,6 +16,17 @@ springdoc:
 
 #  show-login-endpoint: true
 spring:
+  profiles:
+#    active: test
+    active: dev
+#    active: prod
+
+  mvc:
+    format:
+      date-time: iso
+      date: iso
+      time: iso
+
   datasource:
     url: jdbc:postgresql://localhost:5432/shortlink
     username: postgres
@@ -30,21 +38,31 @@ spring:
       additional-paths: src/main/java/com/shortlink/webapp
       enabled: true
 
-  messages:
-    basename: i18n/messages
+#  messages:
+#    basename: i18n/messages
+#    encoding: UTF-8
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yml
 
   jpa:
     open-in-view: false
-    show-sql: true
     database: postgresql
 
     properties:
       hibernate:
+#        enable_lazy_load_no_trans: true
+
+        show_sql: true
         format_sql: true
         #        hbm2ddl.auto: create
         hbm2ddl.auto: validate
-        jdbc:
-          time_zone: UTC
+        fetch_size: 50
+        batch_size: 50
+
+      #        jdbc:
+#          time_zone: UTC
 
       org:
         hibernate:
@@ -52,21 +70,9 @@ spring:
             store_data_at_delete: true
             audit_table_suffix: _audit
             revision_field_name: revision_id
-    #            autoRegisterListeners: false
-    #            global_prefix: audit_
-    #            audit_strategy_validity_store_revend_timestamp_field_name: change_type
-    #            audit_strategy: org.hibernate.envers.DefaultAuditStrategy
+#            revision_type_field_name:
 
-
-    #    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-  #    hibernate:
-  #      ddl-auto: validate
-
-
-
-  liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yml
-
-
+#logging:
+#  level:
+#    root: info
+#    sql: info

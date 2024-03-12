@@ -1,19 +1,27 @@
 package com.shortlink.webapp.property;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-@Setter
 @Getter
-//@Component
+@Setter
+@Validated
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperty {
-    //    @Value("${application.security.jwt.secret-key}")
+
+    @NotBlank
     private String secretKey;
-    //    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
-    //    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
+
+    @Min(1)
+    @NotNull
+    private Long jwtExpiration;
+
+    @Min(1)
+    @NotNull
+    private Long refreshExpiration;
 }

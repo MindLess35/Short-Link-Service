@@ -4,17 +4,18 @@ import com.shortlink.webapp.dto.request.UserCreateEditDto;
 import com.shortlink.webapp.dto.request.UserLoginDto;
 import com.shortlink.webapp.dto.response.JwtResponseDto;
 import com.shortlink.webapp.service.AuthService;
+import io.swagger.v3.oas.annotations.headers.Header;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,21 +24,21 @@ public class AuthController {
     private final AuthService authService;
 //    private final UserService userService;
 
+
     @PostMapping("/signup")
     public ResponseEntity<JwtResponseDto> register(@RequestBody UserCreateEditDto userCreateEditDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(userCreateEditDto));
-
     }
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> authenticate(@RequestBody UserLoginDto userLoginDto) {
-        return ResponseEntity.ok().body(authService.login(userLoginDto));
+        return ResponseEntity.ok(authService.login(userLoginDto));
 
     }
 
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     public ResponseEntity<JwtResponseDto> refreshToken(HttpServletRequest request) {
-       return ResponseEntity.ok().body(authService.refreshToken(request));
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 }
 

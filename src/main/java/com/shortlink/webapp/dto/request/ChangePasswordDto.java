@@ -1,5 +1,6 @@
 package com.shortlink.webapp.dto.request;
 
+import com.shortlink.webapp.validation.annotation.Password;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,17 +9,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Password
 @NoArgsConstructor
 @AllArgsConstructor
+@NotBlank(message = "{password.notblank}")
 public class ChangePasswordDto {
 
-    @NotBlank
     private String currentPassword;
 
-    @NotBlank
     private String newPassword;
 
-    @NotBlank
     private String confirmationPassword;
 
 }

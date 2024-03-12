@@ -1,13 +1,9 @@
 package com.shortlink.webapp;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 
-@SpringBootTest
-class WebappApplicationTests {
+@TestConfiguration
+public class WebappApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
 
 }

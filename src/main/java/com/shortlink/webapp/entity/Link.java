@@ -1,6 +1,5 @@
 package com.shortlink.webapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,28 +23,39 @@ public class Link {
     @Column(nullable = false, unique = true)
     private String shortLink;
 
-    @Column(name = "encrypted_key")
-    private String encryptedKey;
+    @Column(name = "key")
+    private String key;
 
-    @JsonIgnore
-    @JoinColumn
+    //    @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @JsonIgnore
     @OneToMany(
             mappedBy = "link",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.DETACH
+
+            }
     )
+//    @Column(nullable = true)
     private List<ClickLink> clickLink;
 
-    @JsonIgnore
     @OneToOne(
             mappedBy = "link",
-            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
-            optional = false
+            optional = false,
+            cascade = {
+//                    CascadeType.ALL
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.DETACH
+                    //TODO
+            }
     )
     private LinkStatistics linkStatistics;
 

@@ -1,6 +1,7 @@
 package com.shortlink.webapp.validation.annotation;
 
-import com.shortlink.webapp.validation.validator.UniqueShortLinkNameValidator;
+import com.shortlink.webapp.validation.validator.UniqueEmailValidator;
+import com.shortlink.webapp.validation.validator.UsernameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -12,10 +13,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target(FIELD)
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueShortLinkNameValidator.class)
-public @interface UniqueShortLinkName {
+@Constraint(validatedBy = UniqueEmailValidator.class)
+public @interface UniqueEmail {
 
-    String message() default "name of the short link is already taken";
+    String message() default "{email.unique}";
 
     Class<?>[] groups() default {};
 

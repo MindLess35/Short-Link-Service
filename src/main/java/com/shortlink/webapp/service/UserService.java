@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,7 +51,6 @@ public class UserService {
 //                .map(userReadDtoMapper)
 //                .orElseThrow();
 //    }
-
     @Transactional
     public UserReadDto updateUser(Long id, UserCreateEditDto userCreateEditDto) {
         return userRepository.findById(id)
@@ -109,7 +110,7 @@ public class UserService {
     }
 
     public List<AllUsersReadDto> findAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findAll()//TODO
                 .stream()
                 .map(allUsersReadMapper::toDto)
                 .toList();

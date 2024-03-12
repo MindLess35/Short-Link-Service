@@ -11,7 +11,7 @@ public class LinkCreateEditMapper {//implements Function<UserCreateDto, User>
         return Link.builder()
                 .originalLink(dto.getOriginalLink())
                 .shortLink(dto.getCustomLinkName())
-                .encryptedKey(dto.getKey())
+                .key(dto.getKey())
                 .build();
     }
 
@@ -25,7 +25,7 @@ public class LinkCreateEditMapper {//implements Function<UserCreateDto, User>
 //                .build();
         link.setShortLink(dto.getCustomLinkName());
         link.setOriginalLink(dto.getOriginalLink());
-        link.setEncryptedKey(dto.getKey());
+        link.setKey(dto.getKey());
 
         return link;
 

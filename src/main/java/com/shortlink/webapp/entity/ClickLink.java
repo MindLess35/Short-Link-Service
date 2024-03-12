@@ -19,6 +19,10 @@ public class ClickLink {
 
     private LocalDateTime usageTime;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    //    @JoinColumn(nullable = true)
+//    @JoinColumn(name = "link_id")//, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY//, cascade = CascadeType.ALL
+//            , optional = false
+    )
     private Link link;
 }

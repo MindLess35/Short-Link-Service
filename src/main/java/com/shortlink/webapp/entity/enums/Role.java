@@ -52,7 +52,9 @@ public enum Role {//implements GrantedAuthority {
 //        return authorities;
         List<SimpleGrantedAuthority> authority = permissions
                 .stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+//                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                .map(Enum::name)
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         authority.add(new SimpleGrantedAuthority(ROLE_PREFIX + name()));
         return authority;

@@ -1,5 +1,6 @@
 package com.shortlink.webapp.dto.request;
 
+import com.shortlink.webapp.validation.annotation.Password;
 import com.shortlink.webapp.validation.annotation.Username;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,9 +16,10 @@ import lombok.Setter;
 public class JwtRequestDto {
 
     @Username
-    @NotBlank
+    @NotBlank(message = "{username.notblank}")
     private String username;
 
-    @NotBlank
+    @Password
+    @NotBlank(message = "{password.notblank}")
     private String password;
 }
