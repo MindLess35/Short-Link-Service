@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset nlyashkevich:1
+--changeset Nikita Lyashkevich:1
 CREATE TABLE token (
     id                  BIGSERIAL       PRIMARY KEY,
     token               VARCHAR(1024)   NOT NULL UNIQUE,
@@ -10,6 +10,4 @@ CREATE TABLE token (
     date_of_creation    TIMESTAMP       NOT NULL,
     user_id             BIGINT          NOT NULL REFERENCES users(id)
 );
-
-
-
+--rollback DROP TABLE token;

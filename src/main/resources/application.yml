@@ -28,7 +28,7 @@ spring:
       time: iso
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shortlink
+    url: jdbc:postgresql://localhost:5432/shortlink #?currentSchema=${POSTGRES_SCHEMA}
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
@@ -44,7 +44,9 @@ spring:
 
   liquibase:
     enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yml
+#    enabled: false
+    change-log: db/changelog/db.changelog-master.yml
+    default-schema: shortlink
 
   jpa:
     open-in-view: false
@@ -60,6 +62,7 @@ spring:
         hbm2ddl.auto: validate
         fetch_size: 50
         batch_size: 50
+        default_schema: shortlink
 
       #        jdbc:
 #          time_zone: UTC
