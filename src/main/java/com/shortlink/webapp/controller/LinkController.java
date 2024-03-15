@@ -56,7 +56,7 @@ public class LinkController {
             @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses,
             @RequestParam(name = "user_exists", required = false) Boolean isUserExists) {
 
-        Page<AllLinksReadDto> allByPageable = linkService.findAllLinksByPageableAndFilter(
+        return ResponseEntity.ok(linkService.findAllLinksByPageableAndFilter(
                 pageable,
                 shortLink,
                 originalLink,
@@ -64,8 +64,7 @@ public class LinkController {
                 dateOfLastUses,
                 countOfUses,
                 isUserExists
-        );
-        return ResponseEntity.ok(allByPageable);
+        ));
     }
 
     @DeleteMapping("/{id}")

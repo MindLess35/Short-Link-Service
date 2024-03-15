@@ -1,5 +1,6 @@
 package com.shortlink.webapp.dto.response;
 
+import com.shortlink.webapp.entity.enums.Role;
 import lombok.*;
 
 @Getter
@@ -15,7 +16,7 @@ public class AllUsersReadDto {
 
     private String email;
 
-    private String role;
+    private Role role;
 
 //    private Boolean isEmailVerify;
 

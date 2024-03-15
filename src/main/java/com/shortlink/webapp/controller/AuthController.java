@@ -30,7 +30,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(userCreateEditDto));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/signin")
     public ResponseEntity<JwtResponseDto> authenticate(@RequestBody UserLoginDto userLoginDto) {
         return ResponseEntity.ok(authService.login(userLoginDto));
 

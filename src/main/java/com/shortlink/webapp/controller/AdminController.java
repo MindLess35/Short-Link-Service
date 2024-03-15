@@ -1,10 +1,14 @@
 package com.shortlink.webapp.controller;
 
 import com.shortlink.webapp.dto.response.AllUsersReadDto;
+import com.shortlink.webapp.entity.User;
+import com.shortlink.webapp.entity.enums.Role;
 import com.shortlink.webapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.history.Revision;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,17 +26,19 @@ public class AdminController {
     private final UserService userService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<AllUsersReadDto>> getAllUsers(
-            @PageableDefault(
-                    sort = "dateOfCreation",
-                    direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(name = "short_link", required = false) String shortLink,
-            @RequestParam(name = "original_link", required = false) String originalLink,
-            @RequestParam(name = "date_of_creation_before", required = false) LocalDateTime dateOfCreation,
-            @RequestParam(name = "date_of_last_uses_before", required = false) LocalDateTime dateOfLastUses,
-            @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses) {
+    public ResponseEntity<Page<AllUsersReadDto>> getAllUsersInPages(
+            @PageableDefault(sort = "username") Pageable pageable,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "role", required = false) Role role) {
 
-        return ResponseEntity.ok(userService.findAllUsers());
+        return ResponseEntity.ok(userService.findAllUsersByPageableAndFilter(
+                pageable,
+                username,
+                email,
+                role
+        ));
     }
+
 
 }

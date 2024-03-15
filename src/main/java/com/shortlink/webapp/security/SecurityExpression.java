@@ -4,8 +4,13 @@ import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.Role;
 import com.shortlink.webapp.repository.LinkRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ public class SecurityExpression {
                || authorizedUser.getId().equals(requestUserId);
     }
 
+    @Transactional(readOnly = true)
     public boolean isUserHasAccessToLink(Long requestLinkId) {
         User authorizedUser = getAuthorizedUser();
 
@@ -32,9 +38,15 @@ public class SecurityExpression {
     }
 
     private User getAuthorizedUser() {
-        return (User) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+//        return (User) SecurityContextHolder
+//                .getContext()
+//                .getAuthentication()
+//                .getPrincipal();
+        return Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+//                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .orElseThrow(() -> new RuntimeException("Access denied!"));
     }
 }

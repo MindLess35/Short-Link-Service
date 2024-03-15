@@ -25,10 +25,9 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
-//    private SecurityProperty securityProperty ;
 
     @Bean
-    @Profile("dev!prod&!test")
+    @Profile("dev & !(prod | test)")
     public SecurityFilterChain securityFilterChainDev(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
@@ -54,7 +53,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Profile("prod|test!dev")
+    @Profile("(prod | test) & !dev")
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)

@@ -112,7 +112,7 @@ public class LinkService {
             return link.getOriginalLink();
 
         } else
-            throw new InvalidKeyException(String.format("the '%s' key is invalid", maybeKey));
+            throw new InvalidKeyException(String.format("the %s key is invalid", maybeKey));
     }
 
     //    @Transactional
@@ -162,8 +162,12 @@ public class LinkService {
         if (link.isPresent()) {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(User.class, key);
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, link.get(), value);
+                if (field != null) {
+                    field.setAccessible(true);
+                }
+                if (field != null) {
+                    ReflectionUtils.setField(field, link.get(), value);
+                }
             });
             return linkReadMapper.toDto(linkRepository.save(link.get()));
         } else

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.history.Revision;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,9 @@ public class UserController {
 //    }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@securityExpression.isCorrectUserAccess(#id)")
     public ResponseEntity<UserReadDto> getUser(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(userService.findUserById(id));
+        return ResponseEntity.ok(userService.findUserById(id));
     }
 
     @GetMapping("/{id}/links")
@@ -65,16 +67,15 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@securityExpression.isCorrectUserAccess(#id)")
     public ResponseEntity<UserReadDto> updateUser(@PathVariable("id") Long id,
                                                   @RequestBody UserCreateEditDto userCreateEditDto) {
-        return ResponseEntity.ok().body(userService.updateUser(id, userCreateEditDto));
+        return ResponseEntity.ok(userService.updateUser(id, userCreateEditDto));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserReadDto> changeUser(@PathVariable("id") Long id,
                                                   @RequestBody Map<String, Object> fields) {
-        return ResponseEntity.ok().body(userService.changeUser(id, fields));
+        return ResponseEntity.ok(userService.changeUser(id, fields));
     }
 
     @PatchMapping("/change-password")
@@ -96,6 +97,19 @@ public class UserController {
         linkService.deleteAllUsersLinks(id);
         return ResponseEntity.noContent().build();
 
+    }
+
+    @GetMapping("{id}/history")
+    public ResponseEntity<Page<Revision<Long, User>>> getUserAuditing(@PathVariable("id") Long id,
+                                                                      @PageableDefault Pageable pageable) {
+
+        return ResponseEntity.ok(userService.getUserAuditing(id, pageable));
+    }
+
+    @GetMapping("{id}/last-change")
+    public ResponseEntity<Revision<Long, User>> getLastUserChange(@PathVariable("id") Long id) {
+
+        return ResponseEntity.ok(userService.getLastUserChange(id));
     }
 }
 

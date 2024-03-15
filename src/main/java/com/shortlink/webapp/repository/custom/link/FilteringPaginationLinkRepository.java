@@ -1,4 +1,4 @@
-package com.shortlink.webapp.repository.custom;
+package com.shortlink.webapp.repository.custom.link;
 
 import com.querydsl.core.types.Predicate;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;

@@ -20,15 +20,6 @@ public interface ClickLinkRepository extends JpaRepository<ClickLink, Long> {
     )
     List<ClickLinkStatProjection> getStatByDays(Long linkId);
 
-//    @Query(value = """
-//            SELECT new com.shortlink.webapp.dto.response.ClickLinkStatDto(TO_CHAR(cl.usageTime, :timeUnits), COUNT (*))
-//            FROM ClickLink cl
-//            WHERE cl.link.id = :linkId AND TO_CHAR(cl.usageTime, 'yyyy-mm-dd') = :onDate
-//            GROUP BY TO_CHAR(cl.usageTime, :timeUnits)
-//            ORDER BY TO_CHAR(cl.usageTime, :timeUnits)
-//            """
-//    )
-//    List<ClickLinkStatDto> getStatByTimeUnitsOnDate1(Long linkId, String timeUnits, String onDate); //YYYY-MM-DD HH24:MI:SS
     @Query(value = """
             SELECT TO_CHAR(cl.usage_time, :timeUnits) dateOfUses, COUNT(*) countOfUses
             FROM click_links cl

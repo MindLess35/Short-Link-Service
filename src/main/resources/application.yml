@@ -17,10 +17,10 @@ springdoc:
 #  show-login-endpoint: true
 spring:
   profiles:
-#    active: test
-    active: dev
-#    active: prod
-
+    active:
+#      - test
+#      - prod
+      - dev
   mvc:
     format:
       date-time: iso
@@ -56,7 +56,7 @@ spring:
 
         show_sql: true
         format_sql: true
-        #        hbm2ddl.auto: create
+#        hbm2ddl.auto: create
         hbm2ddl.auto: validate
         fetch_size: 50
         batch_size: 50

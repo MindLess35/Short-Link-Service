@@ -24,7 +24,6 @@ import java.util.List;
 public class AddLinkUsageListener {
 
     private final LinkStatisticsRepository linkStatisticsRepository;
-    private final LinkRepository linkRepository;
     private final ClickLinkRepository clickLinkRepository;
 
     @EventListener

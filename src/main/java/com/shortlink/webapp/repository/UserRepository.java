@@ -1,6 +1,7 @@
 package com.shortlink.webapp.repository;
 
 import com.shortlink.webapp.entity.User;
+import com.shortlink.webapp.repository.custom.user.FilteringPaginationUserRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -11,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends
         JpaRepository<User, Long>,
+        FilteringPaginationUserRepository,
         RevisionRepository<User, Long, Long> {
     Optional<User> findByUsername(String username);
 

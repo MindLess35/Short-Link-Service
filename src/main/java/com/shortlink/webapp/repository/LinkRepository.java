@@ -3,7 +3,7 @@ package com.shortlink.webapp.repository;
 import com.shortlink.webapp.dto.LinkCheckKeyDto;
 import com.shortlink.webapp.entity.Link;
 import com.shortlink.webapp.entity.User;
-import com.shortlink.webapp.repository.custom.FilteringPaginationLinkRepository;
+import com.shortlink.webapp.repository.custom.link.FilteringPaginationLinkRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

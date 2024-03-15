@@ -14,7 +14,7 @@ public class AllUsersReadMapper {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(user.getRole().name())
+                .role(user.getRole())
                 .build();
     }
 }

@@ -22,9 +22,7 @@ import java.time.LocalDateTime;
 @RevisionEntity
 @NoArgsConstructor
 @AllArgsConstructor
-//@EntityListeners({AuditingEntityListener.class})
 public class Revision {
-    
 
     @Id
     @RevisionNumber
@@ -32,21 +30,6 @@ public class Revision {
     private Long id;
 
     @RevisionTimestamp
-    private LocalDateTime occurredAt;
+    private LocalDateTime timestamp;
 
-//    @CreatedDate
-//    @Column(nullable = false, updatable = false)
-//    private LocalDateTime createdAt;
-//
-//    @LastModifiedDate
-//    @Column(insertable = false)
-//    private LocalDateTime modifiedAt;
-//
-//    @CreatedBy
-//    @Column(updatable = false)
-//    private String createdBy;
-//
-//    @LastModifiedBy
-//    @Column(insertable = false)
-//    private String modifiedBy;
 }
