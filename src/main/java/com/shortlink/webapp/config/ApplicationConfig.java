@@ -2,7 +2,6 @@ package com.shortlink.webapp.config;
 
 import com.shortlink.webapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
-public class  ApplicationConfig {
+public class ApplicationConfig {
     private final UserRepository userRepository;
 
 //    @Bean
@@ -61,5 +60,5 @@ public class  ApplicationConfig {
         return new BCryptPasswordEncoder();
     }
 
-   
+
 }

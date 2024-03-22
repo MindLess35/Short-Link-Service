@@ -21,7 +21,8 @@ public class SecurityExpression {
         User authorizedUser = getAuthorizedUser();
 
         return isAdmin(authorizedUser)
-               || authorizedUser.getId().equals(requestUserId);
+               || authorizedUser.getId().equals(requestUserId)
+               && isVerified(authorizedUser);
     }
 
     @Transactional(readOnly = true)
@@ -29,8 +30,15 @@ public class SecurityExpression {
         User authorizedUser = getAuthorizedUser();
 
         return isAdmin(authorizedUser)
-               || linkRepository.existsByIdAndUser(requestLinkId, authorizedUser);
+//               || isVerified(authorizedUser)
+//               &&
+               ||
+               linkRepository.existsByIdAndUser(requestLinkId, authorizedUser);
 
+    }
+
+    private boolean isVerified(User authorizedUser) {
+        return authorizedUser.getVerified();
     }
 
     private boolean isAdmin(User authorizedUser) {

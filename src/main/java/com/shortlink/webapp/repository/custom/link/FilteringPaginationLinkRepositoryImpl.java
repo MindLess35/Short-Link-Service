@@ -58,46 +58,6 @@ public class FilteringPaginationLinkRepositoryImpl
         );
     }
 
-    //    private PageImpl<AllLinksReadDto> getAllLinksReadDto(List<OrderSpecifier<?>> orderSpecifiers,
-//                                                         Long total,
-//                                                         Predicate predicate,
-//                                                         Pageable pg,
-//                                                         EntityPathBase<?>... joins) {
-//        if (total == 0)
-//            return new PageImpl<>(new ArrayList<>(), pg, total);
-//
-//        StringExpression dateOfCreation = Expressions.stringTemplate("TO_CHAR({0}, 'yyyy-mm-dd HH24:MI:SS')",
-//                        linkStatistics.dateOfCreation)
-//                .as("dateOfCreation");
-//
-//        StringExpression dateOfLastUses = Expressions.stringTemplate("TO_CHAR({0}, 'yyyy-mm-dd HH24:MI:SS')",
-//                        linkStatistics.dateOfLastUses);
-//
-//        JPQLQuery<AllLinksReadDto> query = new JPAQuery<AllLinksReadDto>(entityManager)
-//                .select(Projections.fields(
-//                        AllLinksReadDto.class,
-//                        link.id,
-//                        link.originalLink,
-//                        link.shortLink,
-//                        dateOfCreation,
-//                        dateOfLastUses.coalesce(messageSource.getMessage("link.notusedyet",
-//                                null, LocaleContextHolder.getLocale()))
-//                                .as("dateOfLastUses"),
-//                        linkStatistics.countOfUses
-//                ))
-//                .from(link)
-//                .where(predicate)
-//                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
-//                .offset(pg.getOffset())
-//                .limit(pg.getPageSize());
-//
-//        for (EntityPathBase<?> joinTo : joins) {
-//            query = query.innerJoin(joinTo);
-//        }
-//
-//        List<AllLinksReadDto> readDtoList = query.fetch();
-//        return new PageImpl<>(readDtoList, pg, total);
-//    }
     @Override
     protected QBean<AllLinksReadDto> createProjection() {
         StringExpression dateOfCreation = Expressions.stringTemplate("TO_CHAR({0}, 'yyyy-mm-dd HH24:MI:SS')",
@@ -116,39 +76,9 @@ public class FilteringPaginationLinkRepositoryImpl
                 dateOfLastUses.coalesce(messageSource.getMessage("link.notusedyet",
                                 null, LocaleContextHolder.getLocale()))
                         .as("dateOfLastUses"),
-                linkStatistics.countOfUses
+                linkStatistics.countOfUses //TODO: add lifetime to queryDSL
         );
     }
-
-
-//    private List<OrderSpecifier<?>> extractOrderSpecifiers(Pageable pageable) {
-//        Sort sort = pageable.getSort();
-//        if (sort.isEmpty())
-//            return new ArrayList<>();
-//
-//        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
-//
-//        for (Sort.Order order : sort) {
-//            Expression<? extends Comparable<?>> orderBy;
-//
-//            orderBy = switch (order.getProperty()) {
-//                case "shortLink" -> link.shortLink;
-//                case "originalLink" -> link.originalLink;
-//                case "dateOfCreation" -> linkStatistics.dateOfCreation;
-//                case "dateOfLastUses" -> linkStatistics.dateOfLastUses;
-//                case "countOfUses" -> linkStatistics.countOfUses;
-//                default -> throw new NoSuchOrderByFieldException("Unsupported sort field: " + order.getProperty());
-//            };
-//
-//            OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(
-//                    order.isAscending() ? Order.ASC : Order.DESC,
-//                    orderBy).nullsLast();
-//
-//            orderSpecifiers.add(orderSpecifier);
-//        }
-//
-//        return orderSpecifiers;
-//    }
 
     @Override
     protected <T> JPQLQuery<T> joiningTables(EntityPathBase<?>[] joins, JPQLQuery<T> query) {

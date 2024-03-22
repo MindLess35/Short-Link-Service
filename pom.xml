@@ -21,6 +21,7 @@
         <apache.commons.version>3.14.0</apache.commons.version>
         <querydsl.version>5.0.0</querydsl.version>
         <testcontainers.version>1.19.6</testcontainers.version>
+        <preliquibase.version>1.5.0</preliquibase.version>
 <!--        <snakeyaml.version>2.0</snakeyaml.version>-->
     </properties>
 
@@ -94,6 +95,16 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
@@ -104,7 +115,6 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
 
         <dependency>
             <groupId>com.querydsl</groupId>
@@ -131,7 +141,7 @@
         <dependency>
             <groupId>net.lbruun.springboot</groupId>
             <artifactId>preliquibase-spring-boot-starter</artifactId>
-            <version>1.5.0</version>
+            <version>${preliquibase.version}</version>
         </dependency>
 
 

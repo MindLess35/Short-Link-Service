@@ -27,6 +27,14 @@ databaseChangeLog:
       file: db/changelog/changesets/13-create-table-revision.sql
   - include:
       file: db/changelog/changesets/14-create-table-users_audit.sql
+  - include:
+      file: db/changelog/changesets/15-create-table-mail_verification.sql
+  - include:
+      file: db/changelog/changesets/16-add-column-verified-with-not-null-to-users.sql
+  - include:
+      file: db/changelog/changesets/17-add-column-verified-to-users_audit.sql
+  - include:
+      file: db/changelog/changesets/18-create-table-reset_password.sql
 #  - include:
 #      file: db/changelog/changesets/
 
@@ -34,6 +42,4 @@ databaseChangeLog:
 
 #  - includeAll:
 #      path: db/changelog/changesets
-#      resourceComparator:
-#      path: db/changelog/changesets/   <-- тоже не работает
 #      relativeToChangelogFile: true

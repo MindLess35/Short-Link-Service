@@ -19,7 +19,7 @@ public class UniqueShortLinkValidator implements ConstraintValidator<UniqueShort
         if (customLinkName == null)
             return true;
 //        context.getDefaultConstraintMessageTemplate().
-        return !linkRepository.existsByShortLink(LinkUtil.URI + customLinkName);
+        return !linkRepository.existsByShortLink(LinkUtil.APPLICATION_URL + customLinkName);
 
 //        if (linkRepository.shortLinkNameAlreadyExists(value))
 //            throw new RuntimeException();

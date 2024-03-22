@@ -19,7 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -36,7 +35,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users",schema = "shortlink")
+@Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class User implements UserDetails {
@@ -51,8 +50,9 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    //    @Column(nullable = false)
-//    private Boolean isEmailVerify;
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean verified = false;
 
     @Column(nullable = false)
     private String password;

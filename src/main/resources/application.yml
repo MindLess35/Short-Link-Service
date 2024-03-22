@@ -1,14 +1,25 @@
+minio:
+  url: http://localhost:9000
+  username: minioadmin
+  password: minioadmin
+  bucket: images
+
 link:
-  count-of-random-url-characters: 6
+  count-of-random-url-characters: 8
 
 jwt:
   secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   jwt-expiration: 86400000 # a day
   refresh-expiration: 604800000
 
+token:
+  verify-email-expiration: 10
+  reset-password-expiration: 10
+
 server:
   error:
     include-message: always
+    include-binding-errors: always
 
 springdoc:
   swagger-ui:
@@ -28,7 +39,7 @@ spring:
       time: iso
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shortlink #?currentSchema=${POSTGRES_SCHEMA}
+    url: jdbc:postgresql://localhost:5432/shortlink?currentSchema=shortlink
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
@@ -38,7 +49,22 @@ spring:
       additional-paths: src/main/java/com/shortlink/webapp
       enabled: true
 
-#  messages:
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: liroy2468@gmail.com
+    password: qsff wehe ndqj slbb
+
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  #  messages:
 #    basename: i18n/messages
 #    encoding: UTF-8
 
@@ -79,3 +105,8 @@ spring:
 #  level:
 #    root: info
 #    sql: info
+
+#logging:
+#  level:
+#    root: INFO
+#    org.springframework.jdbc.core: TRACE

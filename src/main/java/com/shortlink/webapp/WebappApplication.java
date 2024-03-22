@@ -6,17 +6,20 @@ import com.shortlink.webapp.entity.enums.TokenType;
 import com.shortlink.webapp.repository.TokenRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.service.JwtService;
+import jakarta.persistence.QueryHint;
+import org.hibernate.jpa.HibernateHints;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static com.shortlink.webapp.entity.enums.Role.ADMIN;
 import static com.shortlink.webapp.entity.enums.Role.MANAGER;
 
-
+@EnableAsync
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class WebappApplication {
@@ -24,7 +27,6 @@ public class WebappApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebappApplication.class, args);
     }
-
     @Bean
     public CommandLineRunner commandLineRunner(
             UserRepository userRepository,

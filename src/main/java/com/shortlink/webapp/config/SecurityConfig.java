@@ -1,9 +1,11 @@
 package com.shortlink.webapp.config;
 
+import com.shortlink.webapp.property.MailProperty;
 import com.shortlink.webapp.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+
+import java.util.UUID;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -33,7 +37,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable);
+                .anonymous(AbstractHttpConfigurer::disable)
+                .rememberMe(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request -> request
                 .anyRequest().permitAll());
@@ -53,13 +58,15 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Primary
     @Profile("(prod | test) & !dev")
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable);
+                .anonymous(AbstractHttpConfigurer::disable)
+                .rememberMe(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers("/api/v1/users/**").authenticated()

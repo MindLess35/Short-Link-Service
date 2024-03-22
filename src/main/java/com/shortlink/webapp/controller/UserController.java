@@ -4,6 +4,7 @@ import com.shortlink.webapp.dto.request.ChangePasswordDto;
 import com.shortlink.webapp.dto.request.UserCreateEditDto;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
+import com.shortlink.webapp.entity.ResetPassword;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.service.LinkService;
 import com.shortlink.webapp.service.UserService;
@@ -54,7 +55,6 @@ public class UserController {
             @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses
     ) {
 
-
         return ResponseEntity.ok(linkService.getAllUsersLinksByPageableAndFilter(
                 id,
                 pageable,
@@ -76,13 +76,6 @@ public class UserController {
     public ResponseEntity<UserReadDto> changeUser(@PathVariable("id") Long id,
                                                   @RequestBody Map<String, Object> fields) {
         return ResponseEntity.ok(userService.changeUser(id, fields));
-    }
-
-    @PatchMapping("/change-password")
-    public ResponseEntity<HttpStatus> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
-                                                     @AuthenticationPrincipal User user) {
-        userService.changePassword(changePasswordDto, user);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{id}")
@@ -111,5 +104,14 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getLastUserChange(id));
     }
+
+    @PatchMapping("/change-password") // todo: change auth principal to id in change password
+    public ResponseEntity<HttpStatus> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
+                                                     @AuthenticationPrincipal User user) {
+        userService.changePassword(changePasswordDto, user);
+        return ResponseEntity.ok().build();
+    }
+
+
 }
 

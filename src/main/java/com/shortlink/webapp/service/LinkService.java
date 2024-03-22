@@ -71,7 +71,7 @@ public class LinkService {
 
     private void setShortLink(LinkCreateEditDto dto) {
         String shortLinkName = dto.getCustomLinkName();
-        String uri = LinkUtil.URI;
+        String uri = LinkUtil.APPLICATION_URL;
         String shortLink = uri + shortLinkName;
 
         if (shortLinkName == null) {
@@ -99,7 +99,7 @@ public class LinkService {
     }
 
     public String getOriginalLinkByKey(String shortLinkName, String maybeKey) {
-        Link link = linkRepository.findByShortLink(LinkUtil.URI + shortLinkName)
+        Link link = linkRepository.findByShortLink(LinkUtil.APPLICATION_URL + shortLinkName)
                 .orElseThrow(() -> new LinkNotExistsException(
                         "link with the name of the short link [%s] does not exists"
                                 .formatted(shortLinkName)));
@@ -117,7 +117,7 @@ public class LinkService {
 
     //    @Transactional
     public String getOriginalLink(String shortLinkName) {
-        Link link = linkRepository.findByShortLink(LinkUtil.URI + shortLinkName)
+        Link link = linkRepository.findByShortLink(LinkUtil.APPLICATION_URL + shortLinkName)
                 .orElseThrow(() -> new LinkNotExistsException(
                         "link with the name of the short link [%s] does not exists"
                                 .formatted(shortLinkName)));

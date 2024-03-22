@@ -8,10 +8,10 @@ import java.util.Objects;
 
 @UtilityClass
 public class LinkUtil {
-    public final String URI = ServletUriComponentsBuilder
-                                             .fromCurrentContextPath()
-                                             .build()
-                                             .toUriString() + "/";
+    public final String APPLICATION_URL = ServletUriComponentsBuilder
+                                      .fromCurrentContextPath()
+                                      .build()
+                                      .toUriString() + "/";
 
 
 //    public String encryptKeySHA256(String key) {
@@ -33,9 +33,33 @@ public class LinkUtil {
 //
 //    }
 
-//    public boolean isCorrectKey(String maybeCorrectKey, String encryptedKey) {
+    //    public boolean isCorrectKey(String maybeCorrectKey, String encryptedKey) {
 //        String hashMaybeCorrectKey = encryptKeySHA256(maybeCorrectKey);
 //        return Objects.equals(hashMaybeCorrectKey, encryptedKey);
+//
+//    }
+//    public static void main(String[] args) {
+//        Set<String> apachi = new HashSet<>();
+//        Set<String> uuid = new HashSet<>();
+//        int uuidMatches = 0;
+//        int apachiMatches = 0;
+//
+//        for (int i = 0; i < 1_000_000_0; i++) {
+//            String randomApachi = RandomStringUtils.random(8, true, true);
+//            String randomUuid = UUID.randomUUID().toString().substring(0, 8);
+//
+//            if (apachi.contains(randomApachi))
+//                apachiMatches++;
+//            else apachi.add(randomApachi);
+//
+//            if (uuid.contains(randomUuid))
+//                uuidMatches++;
+//            else uuid.add(randomUuid);
+//
+//        }
+//
+//        System.out.println("random apachi " + apachiMatches);
+//        System.out.println("random uuid " + uuidMatches);
 //
 //    }
 
