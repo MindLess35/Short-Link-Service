@@ -22,7 +22,7 @@
         <querydsl.version>5.0.0</querydsl.version>
         <testcontainers.version>1.19.6</testcontainers.version>
         <preliquibase.version>1.5.0</preliquibase.version>
-<!--        <snakeyaml.version>2.0</snakeyaml.version>-->
+        <minio.version>8.5.9</minio.version>
     </properties>
 
     <dependencies>
@@ -144,6 +144,11 @@
             <version>${preliquibase.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

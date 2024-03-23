@@ -3,9 +3,13 @@ package com.shortlink.webapp;
 import com.shortlink.webapp.entity.Token;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.TokenType;
+import com.shortlink.webapp.property.MinioProperty;
 import com.shortlink.webapp.repository.TokenRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.service.JwtService;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
 import jakarta.persistence.QueryHint;
 import org.hibernate.jpa.HibernateHints;
 import org.springframework.boot.CommandLineRunner;
@@ -27,8 +31,24 @@ public class WebappApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebappApplication.class, args);
     }
+
     @Bean
-    public CommandLineRunner commandLineRunner(
+    public CommandLineRunner forCreateBucketInMinio(MinioClient minioClient,
+                                                    MinioProperty minioProperty) {
+        return args -> {
+            String bucket = minioProperty.getBucket();
+
+            if (!minioClient.bucketExists(BucketExistsArgs.builder()
+                    .bucket(bucket)
+                    .build()))
+                minioClient.makeBucket(MakeBucketArgs.builder()
+                        .bucket(bucket)
+                        .build());
+        };
+    }
+
+    @Bean
+    public CommandLineRunner forCreateAdminInPostgres(
             UserRepository userRepository,
             JwtService jwtService,
             TokenRepository tokenRepository,

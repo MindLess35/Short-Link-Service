@@ -57,6 +57,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    private String profileImage;
+
 //    @Column(nullable = false)
 //    private Boolean active;
 

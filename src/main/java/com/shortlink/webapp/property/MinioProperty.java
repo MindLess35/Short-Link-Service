@@ -12,16 +12,19 @@ import java.util.Properties;
 
 @Getter
 @Setter
-@NotBlank
 @Validated
 @ConfigurationProperties(prefix = "minio")
 public class MinioProperty {
 
+    @NotBlank
     private String url;
 
+    @NotBlank
     private String username;
 
+    @NotBlank
     private String password;
 
+    @NotBlank
     private String bucket;
 }

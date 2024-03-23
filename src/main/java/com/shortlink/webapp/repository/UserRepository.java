@@ -1,5 +1,6 @@
 package com.shortlink.webapp.repository;
 
+import com.shortlink.webapp.dto.projection.ProfileImageWithUserIdProjection;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.repository.custom.user.FilteringPaginationUserRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,11 +51,42 @@ public interface UserRepository extends
     void updatePasswordById(String newPassword, Long userId);
 
     @Query("""
-           SELECT u
-           FROM User u
-           WHERE u.email = :emailOrUsername OR u.username = :emailOrUsername
-           """)
+            SELECT u
+            FROM User u
+            WHERE u.email = :emailOrUsername OR u.username = :emailOrUsername
+            """)
     Optional<User> findByEmailOrUsername(String emailOrUsername);
+
+    @Modifying
+    @Query("""
+            UPDATE User u
+            SET u.profileImage = :profileImage
+            WHERE u.id = :userId
+            """)
+    void updateProfileImageById(String profileImage, Long userId);
+
+    @Query("""
+            SELECT u.profileImage
+            FROM User u
+            WHERE u.id = :userId
+            """)
+    Optional<String> findProfileImageById(Long userId);
+
+    @Modifying
+    @Query("""
+            UPDATE User u
+            SET u.profileImage = null
+            WHERE u.id = :userId
+            """)
+    void updateProfileImageToNullById(Long userId);
+    @Query("""
+            SELECT u.profileImage AS profileImage,
+                   u.id AS userId
+            FROM User u
+            WHERE u.id = :userId
+            """)
+    Optional<ProfileImageWithUserIdProjection> findProfileImageWithUserIdById(Long userId);
+
 
 //    List<Link> findAllUsersLinkById(Long id);
 

@@ -35,6 +35,10 @@ databaseChangeLog:
       file: db/changelog/changesets/17-add-column-verified-to-users_audit.sql
   - include:
       file: db/changelog/changesets/18-create-table-reset_password.sql
+  - include:
+      file: db/changelog/changesets/19-add-column-profile_image-to-users.sql
+  - include:
+      file: db/changelog/changesets/20-add-column-profile_image-to-users_audit.sql
 #  - include:
 #      file: db/changelog/changesets/
 
