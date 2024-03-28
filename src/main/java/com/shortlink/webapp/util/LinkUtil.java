@@ -26,7 +26,6 @@ public class LinkUtil {
 //            return hash.toString();
 //
 //        } catch (NoSuchAlgorithmException ex) {
-////            TODO
 ////            throw new NoSuchAlgorithmException();
 //            return key;
 //        }

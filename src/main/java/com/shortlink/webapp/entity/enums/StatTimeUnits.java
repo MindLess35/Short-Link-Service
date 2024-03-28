@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum StatTimeUnits {
 
-    BY_HOURS("yyyy-mm-dd : HH24"),
+    BY_HOURS("YYYY-MM-DD\"T\"HH24\"Z\""),
 
-    BY_MINUTES("yyyy-mm-dd : HH24-mi");
+    BY_MINUTES("YYYY-MM-DD\"T\"HH24:MI\"Z\"");
 
     @Getter
     private final String timeUnits;

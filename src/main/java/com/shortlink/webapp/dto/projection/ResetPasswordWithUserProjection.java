@@ -1,10 +1,10 @@
 package com.shortlink.webapp.dto.projection;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface ResetPasswordWithUserProjection {
     Long getUserId();
     Long getResetId();
-    LocalDateTime getCreatedAt();
-    LocalDateTime getResetAt();
+    Instant getCreatedAt();
+    Instant getResetAt();
 }

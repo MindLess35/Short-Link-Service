@@ -1,10 +1,10 @@
 package com.shortlink.webapp.controller;
 
 import com.shortlink.webapp.dto.request.ChangePasswordDto;
-import com.shortlink.webapp.dto.request.UserCreateEditDto;
+import com.shortlink.webapp.dto.request.UserCreateDto;
+import com.shortlink.webapp.dto.request.UserUpdateDto;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
-import com.shortlink.webapp.entity.ResetPassword;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.service.LinkService;
 import com.shortlink.webapp.service.UserService;
@@ -20,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class UserController {
 //    }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@securityExpression.isCorrectUserAccess(#id)")
+//    @PreAuthorize("@securityExpression.isCorrectUserAccess(#id)")
     public ResponseEntity<UserReadDto> getUser(@PathVariable("id") Long id) {
         return ResponseEntity.ok(userService.findUserById(id));
     }
@@ -50,9 +51,10 @@ public class UserController {
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(name = "short_link", required = false) String shortLink,
             @RequestParam(name = "original_link", required = false) String originalLink,
-            @RequestParam(name = "date_of_creation_before", required = false) LocalDateTime dateOfCreation,
-            @RequestParam(name = "date_of_last_uses_before", required = false) LocalDateTime dateOfLastUses,
-            @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses
+            @RequestParam(name = "date_of_creation_before", required = false) Instant dateOfCreation,
+            @RequestParam(name = "date_of_last_uses_before", required = false) Instant dateOfLastUses,
+            @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses,
+            @RequestParam(name = "time_to_live_before", required = false) Instant timeToLive
     ) {
 
         return ResponseEntity.ok(linkService.getAllUsersLinksByPageableAndFilter(
@@ -62,34 +64,34 @@ public class UserController {
                 originalLink,
                 dateOfCreation,
                 dateOfLastUses,
-                countOfUses
+                countOfUses,
+                timeToLive
         ));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserReadDto> updateUser(@PathVariable("id") Long id,
-                                                  @RequestBody UserCreateEditDto userCreateEditDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userCreateEditDto));
+                                                  @RequestBody UserUpdateDto userUpdateDto) {
+        return ResponseEntity.ok(userService.updateUser(id, userUpdateDto));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserReadDto> changeUser(@PathVariable("id") Long id,
                                                   @RequestBody Map<String, Object> fields) {
-        return ResponseEntity.ok(userService.changeUser(id, fields));
+
+        return ResponseEntity.accepted().body(userService.changeUser(id, fields));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
-
     }
 
     @DeleteMapping("/{id}/links")
     public ResponseEntity<HttpStatus> deleteAllUsersLinks(@PathVariable("id") Long id) {
         linkService.deleteAllUsersLinks(id);
         return ResponseEntity.noContent().build();
-
     }
 
     @GetMapping("{id}/history")
@@ -105,11 +107,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getLastUserChange(id));
     }
 
-    @PatchMapping("/change-password") // todo: change auth principal to id in change password
-    public ResponseEntity<HttpStatus> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
-                                                     @AuthenticationPrincipal User user) {
-        userService.changePassword(changePasswordDto, user);
-        return ResponseEntity.ok().build();
+    @PatchMapping("{id}/change-password")
+    public ResponseEntity<HttpStatus> changePassword(@PathVariable("id") Long id,
+                                                     @RequestBody ChangePasswordDto changePasswordDto) {
+        userService.changePassword(id, changePasswordDto);
+        return ResponseEntity.accepted().build();
     }
 
 

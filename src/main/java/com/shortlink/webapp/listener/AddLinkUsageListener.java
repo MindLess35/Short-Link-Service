@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,15 +30,12 @@ public class AddLinkUsageListener {
     @EventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addLinkUsage(AddLinkUsageEvent event) {
-
-//        Page<Link> linksPage = linkRepository.findAllByOrderByDateOfCreationDesc(pageable);
-
         LinkStatistics linkStatistics = event.getLinkStatistics();
         linkStatistics.setCountOfUses(linkStatistics.getCountOfUses() + 1L);
 
         clickLinkRepository.save(ClickLink.builder()
                 .link(linkStatistics.getLink())
-                .usageTime(LocalDateTime.now())
+                .usageTime(Instant.now())
                 .build());
         linkStatisticsRepository.save(linkStatistics);
     }

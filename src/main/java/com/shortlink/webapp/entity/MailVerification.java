@@ -10,6 +10,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Setter
@@ -30,9 +31,9 @@ public class MailVerification {
 
     @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime verifiedAt;
+    private Instant verifiedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;

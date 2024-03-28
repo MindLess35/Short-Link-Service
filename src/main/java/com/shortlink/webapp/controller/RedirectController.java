@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class RedirectController {
@@ -28,6 +30,7 @@ public class RedirectController {
         headers.add("Location", linkService.getOriginalLinkByKey(shortLinkName, key));
 
         return new ResponseEntity<>(headers, HttpStatus.FOUND); // Код 302 - Redirect
+//        .location(URI.create())
     }
 
     @GetMapping("/{short-link-name}")

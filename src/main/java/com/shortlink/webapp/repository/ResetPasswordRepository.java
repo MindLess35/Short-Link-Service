@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -32,7 +33,7 @@ public interface ResetPasswordRepository extends JpaRepository<ResetPassword, Lo
             SET rp.resetAt = :resetAt
             WHERE rp.id = :resetId
             """)
-    void updateResetAtById(LocalDateTime resetAt, Long resetId);
+    void updateResetAtById(Instant resetAt, Long resetId);
 //    @Query("""
 //            SELECT u.id AS userId,
 //                   u.verified AS verified,

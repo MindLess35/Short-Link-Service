@@ -2,18 +2,23 @@ package com.shortlink.webapp.dto.response;
 
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Builder
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-//@AllArgsConstructor
-public class LinkReadDto {
+public class LinkReadDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = -2736798644982670163L;
+
     private Long id;
+
     private String originalLink;
+
     private String shortLink;
 
-
-    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 }

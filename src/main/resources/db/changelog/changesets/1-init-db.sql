@@ -25,7 +25,7 @@ CREATE TABLE link_statistics (
 	link_id             BIGINT      NOT NULL REFERENCES link(id),
 	date_of_creation    TIMESTAMP   NOT NULL,
 	date_of_last_uses   TIMESTAMP   NOT NULL,
-	life_time           BIGINT      NOT NULL,
+	life_time           TIMESTAMP,
 	count_of_uses       BIGINT      NOT NULL
 );
 --rollback DROP TABLE link_statistics;

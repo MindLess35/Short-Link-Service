@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -25,12 +25,12 @@ public class LinkStatisticsService {
     //    date_of_last_uses   TIMESTAMP   NOT NULL, +
     //    life_time           BIGINT      NOT NULL, +
     //    count_of_uses       BIGINT      NOT NULL  +
-    @Transactional
-    public void createLinkStatistics(Link link, Long lifeTimeInSeconds) {
+//    @Transactional
+    public void createLinkStatistics(Link link, Instant timeToLive) {
         linkStatisticsRepository.save(
                 LinkStatistics.builder()
                         .link(link)
-                        .lifeTime(lifeTimeInSeconds)
+                        .timeToLive(timeToLive)
                         .build()
         );
     }
@@ -49,14 +49,10 @@ public class LinkStatisticsService {
 //    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean isLifeTimeExpired(LinkStatistics linkStatistics) {
-        Long lifeTime = linkStatistics.getLifeTime();
-        if (linkStatistics
-                .getDateOfCreation()
-                .plusSeconds(lifeTime)
-                .isBefore(LocalDateTime.now())) {
+    public boolean isTimeToLiveExpired(LinkStatistics linkStatistics) {
+        if (Instant.now()
+                .isAfter(linkStatistics.getTimeToLive())) {
             linkRepository.delete(linkStatistics.getLink());
-//            linkRepository.flush();
             return true;
         }
         return false;

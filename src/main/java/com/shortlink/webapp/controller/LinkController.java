@@ -1,22 +1,22 @@
 package com.shortlink.webapp.controller;
 
-import com.shortlink.webapp.dto.request.LinkCreateEditDto;
+import com.shortlink.webapp.dto.request.LinkCreateDto;
+import com.shortlink.webapp.dto.request.LinkUpdateDto;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.LinkReadDto;
-import com.shortlink.webapp.dto.projection.TopLinkSourceSitesProjection;
 import com.shortlink.webapp.service.LinkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,21 +28,15 @@ public class LinkController {
 
     @PostMapping
 //    @PreAuthorize("permitAll")
-    public ResponseEntity<LinkReadDto> createShortLink(@RequestBody LinkCreateEditDto linkCreateEditDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(linkService.createLink(linkCreateEditDto));
+    public ResponseEntity<LinkReadDto> createShortLink(@RequestBody LinkCreateDto linkCreateDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(linkService.createLink(linkCreateDto));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@securityExpression.isUserHasAccessToLink(#id)")
+//    @PreAuthorize("@securityExpression.isUserHasAccessToLink(#id)")
     public ResponseEntity<LinkReadDto> getLink(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(linkService.getLinkById(id));
     }
-
-
-//    @GetMapping
-//    public ResponseEntity<List<LinkReadDto>> getAllLinks() {
-//        return ResponseEntity.ok().body(linkService.getAllLinks());
-//    }
 
     @GetMapping
     public ResponseEntity<Page<AllLinksReadDto>> findAllLinksByPageableAndFilter(
@@ -51,10 +45,11 @@ public class LinkController {
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(name = "short_link", required = false) String shortLink,
             @RequestParam(name = "original_link", required = false) String originalLink,
-            @RequestParam(name = "date_of_creation_before", required = false) LocalDateTime dateOfCreation,
-            @RequestParam(name = "date_of_last_uses_before", required = false) LocalDateTime dateOfLastUses,
+            @RequestParam(name = "date_of_creation_before", required = false) Instant dateOfCreation,
+            @RequestParam(name = "date_of_last_uses_before", required = false) Instant dateOfLastUses,
             @RequestParam(name = "count_of_uses_goe", required = false) Long countOfUses,
-            @RequestParam(name = "user_exists", required = false) Boolean isUserExists) {
+            @RequestParam(name = "user_exists", required = false) Boolean isUserExists,
+            @RequestParam(name = "time_to_live_before", required = false) Instant timeToLive) {
 
         return ResponseEntity.ok(linkService.findAllLinksByPageableAndFilter(
                 pageable,
@@ -63,7 +58,8 @@ public class LinkController {
                 dateOfCreation,
                 dateOfLastUses,
                 countOfUses,
-                isUserExists
+                isUserExists,
+                timeToLive
         ));
     }
 
@@ -83,12 +79,10 @@ public class LinkController {
 
     @PutMapping("/{id}")
     public ResponseEntity<LinkReadDto> updateLink(@PathVariable("id") Long id,
-                                                  @RequestBody LinkCreateEditDto dto) {
+                                                  @RequestBody LinkUpdateDto dto) {
 
         return ResponseEntity.ok(linkService.updateLink(id, dto));
     }
-
-
 
 
 }

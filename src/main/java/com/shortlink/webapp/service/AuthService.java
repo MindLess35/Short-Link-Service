@@ -1,6 +1,6 @@
 package com.shortlink.webapp.service;
 
-import com.shortlink.webapp.dto.request.UserCreateEditDto;
+import com.shortlink.webapp.dto.request.UserCreateDto;
 import com.shortlink.webapp.dto.request.UserLoginDto;
 import com.shortlink.webapp.dto.response.JwtResponseDto;
 import com.shortlink.webapp.entity.Token;
@@ -8,11 +8,10 @@ import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.MailType;
 import com.shortlink.webapp.entity.enums.TokenType;
 import com.shortlink.webapp.exception.InvalidJwtException;
-import com.shortlink.webapp.mapper.UserCreateEditDtoMapper;
+import com.shortlink.webapp.mapper.UserCreateDtoMapper;
 import com.shortlink.webapp.repository.TokenRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.util.EmailUtil;
-import com.shortlink.webapp.util.LinkUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,14 +28,14 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private final UserCreateEditDtoMapper userCreateEditDtoMapper;
+    private final UserCreateDtoMapper userCreateDtoMapper;
     private final AuthenticationManager authenticationManager;
     private final MailSender mailSender;
     private final MailVerificationService mailVerificationService;
 
     @Transactional
-    public JwtResponseDto createUser(UserCreateEditDto userCreateEditDto) {
-        User user = userCreateEditDtoMapper.apply(userCreateEditDto);
+    public JwtResponseDto createUser(UserCreateDto userCreateDto) {
+        User user = userCreateDtoMapper.toEntity(userCreateDto);
         User savedUser = userRepository.save(user);
         String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);

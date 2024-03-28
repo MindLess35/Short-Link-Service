@@ -39,6 +39,10 @@ databaseChangeLog:
       file: db/changelog/changesets/19-add-column-profile_image-to-users.sql
   - include:
       file: db/changelog/changesets/20-add-column-profile_image-to-users_audit.sql
+  - include:
+      file: db/changelog/changesets/21-rename-column-time_to_live-in-link_stat.sql
+#  - include:
+#      file: db/changelog/changesets/22-alter-type-in-time_to_live-to-timestamp-and-drop-not-null-in-link_stat.sql
 #  - include:
 #      file: db/changelog/changesets/
 
@@ -47,3 +51,25 @@ databaseChangeLog:
 #  - includeAll:
 #      path: db/changelog/changesets
 #      relativeToChangelogFile: true
+#  --liquibase formatted sql
+#
+#  --changeset Nikita Lyashkevich:1
+#  ALTER TABLE link_statistics
+#  ALTER COLUMN time_to_live TYPE TIMESTAMP
+#  USING time_to_live::timestamp;
+#  --rollback
+#  --ALTER TABLE link_statistics
+#  --ALTER COLUMN time_to_live TYPE BIGINT
+#  --USING time_to_live::BIGINT;
+#
+#  --changeset Nikita Lyashkevich:2
+#  ALTER TABLE link_statistics
+#  ALTER COLUMN time_to_live
+#  DROP NOT NULL;
+#  --rollback
+#  --ALTER TABLE link_statistics
+#  --ALTER COLUMN time_to_live
+#  --SET NOT NULL;
+
+
+

@@ -81,4 +81,5 @@ public class UserImageService {
             throw new DeleteImageException("Delete image failed, reason: ", e);
         }
     }
+    //todo get image add functionality
 }

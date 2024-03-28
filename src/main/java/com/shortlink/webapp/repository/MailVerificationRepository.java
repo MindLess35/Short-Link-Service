@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -33,5 +34,5 @@ public interface MailVerificationRepository extends JpaRepository<MailVerificati
             SET mv.verifiedAt = :verifiedAt
             WHERE mv.id = :verificationId
             """)
-    void updateVerifiedAtById(Long verificationId, LocalDateTime verifiedAt);
+    void updateVerifiedAtById(Long verificationId, Instant verifiedAt);
 }

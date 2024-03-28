@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 //@RequiredArgsConstructor
-public class AllUsersReadMapper {
+public class AllUsersReadDtoMapper { //todo remove this mapper
 
     public AllUsersReadDto toDto(User user) {
         return AllUsersReadDto

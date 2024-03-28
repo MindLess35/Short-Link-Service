@@ -21,8 +21,16 @@ public class ClickLinkService {
     public List<ClickLinkStatProjection> getStatByTimeUnitsOnDate(Long linkId,
                                                                   LocalDate onDate,
                                                                   TimeUnits timeUnits) {
-//"dd-MM-yyyy"
+
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+//        yyyy-mm-dd HH24:MI:SS dsl
+//        '2011-12-03T10:15:30' ldt
+//        1970-01-01T18:06:17Z instant
+//        yyyy-mm-dd : HH24-mi  BY_MINUTES
+
+//        2024-03-28 15:16:13
+
+//        'YYYY-MM-DD"T"HH24:MI:SS"Z"' гпт
         return switch (timeUnits) {
 
             case MINUTES -> clickLinkRepository.getStatByTimeUnitsOnDate(linkId,

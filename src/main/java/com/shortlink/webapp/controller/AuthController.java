@@ -1,22 +1,15 @@
 package com.shortlink.webapp.controller;
 
-import com.shortlink.webapp.dto.request.UserCreateEditDto;
+import com.shortlink.webapp.dto.request.UserCreateDto;
 import com.shortlink.webapp.dto.request.UserLoginDto;
 import com.shortlink.webapp.dto.response.JwtResponseDto;
 import com.shortlink.webapp.service.AuthService;
 import com.shortlink.webapp.service.MailVerificationService;
-import io.swagger.v3.oas.annotations.headers.Header;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Locale;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,8 +21,8 @@ public class AuthController {
 
 
     @PostMapping("/sign-up")
-    public ResponseEntity<JwtResponseDto> register(@RequestBody UserCreateEditDto userCreateEditDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(userCreateEditDto));
+    public ResponseEntity<JwtResponseDto> register(@RequestBody UserCreateDto userCreateDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(userCreateDto));
     }
 
     @PostMapping("/sign-in")

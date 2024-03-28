@@ -18,6 +18,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Setter
@@ -34,25 +35,22 @@ public class LinkStatistics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    @JoinColumn(name = "link_id")
-//    @JoinColumn(name = "link_id", nullable = false , insertable = false, updatable = false)
-//    @JoinColumn(name = "link_id", nullable = false, insertable = true, updatable = true)
     @OneToOne(fetch = FetchType.LAZY)
     private Link link;
 
     @CreatedDate
     @Column(name = "date_of_creation", nullable = false, updatable = false)
-    private LocalDateTime dateOfCreation;
+    private Instant dateOfCreation;
 
     @LastModifiedDate
     @Column(name = "date_of_last_uses", insertable = false)
-    private LocalDateTime dateOfLastUses;
+    private Instant dateOfLastUses;
 
     @Builder.Default
     @Column(name = "count_of_uses", nullable = false)
     private Long countOfUses = 0L;
 
-    @Column(name = "life_time", nullable = false)
-    private Long lifeTime;
+    @Column(name = "time_to_live", nullable = false)
+    private Instant timeToLive;
 
 }

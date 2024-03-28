@@ -26,7 +26,6 @@ public class Link {
     @Column(name = "key")
     private String key;
 
-    //    @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
@@ -49,12 +48,10 @@ public class Link {
             fetch = FetchType.LAZY,
             optional = false,
             cascade = {
-//                    CascadeType.ALL
-                    CascadeType.PERSIST,
+                    CascadeType.PERSIST, // todo test CascadeType.ALL working
                     CascadeType.MERGE,
                     CascadeType.REFRESH,
                     CascadeType.DETACH
-                    //TODO
             }
     )
     private LinkStatistics linkStatistics;

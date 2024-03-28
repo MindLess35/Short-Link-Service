@@ -2,21 +2,22 @@ package com.shortlink.webapp.service;
 
 import com.querydsl.core.types.Predicate;
 import com.shortlink.webapp.dto.request.ChangePasswordDto;
-import com.shortlink.webapp.dto.request.UserCreateEditDto;
+import com.shortlink.webapp.dto.request.UserUpdateDto;
 import com.shortlink.webapp.dto.response.AllUsersReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
 import com.shortlink.webapp.entity.User;
-import com.shortlink.webapp.entity.enums.MailType;
 import com.shortlink.webapp.entity.enums.Role;
 import com.shortlink.webapp.exception.InvalidPasswordException;
 import com.shortlink.webapp.exception.UserNotExistsException;
-import com.shortlink.webapp.mapper.UserCreateEditDtoMapper;
 import com.shortlink.webapp.mapper.UserReadDtoMapper;
-import com.shortlink.webapp.property.MailProperty;
+import com.shortlink.webapp.mapper.UserUpdateDtoMapper;
 import com.shortlink.webapp.repository.UserRepository;
-import com.shortlink.webapp.util.EmailUtil;
 import com.shortlink.webapp.util.QPredicates;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
@@ -37,38 +38,33 @@ import static com.shortlink.webapp.entity.QUser.user;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
-    private final UserCreateEditDtoMapper userCreateEditDtoMapper;
+    private final UserUpdateDtoMapper userUpdateDtoMapper;
     private final UserReadDtoMapper userReadDtoMapper;
     private final PasswordEncoder passwordEncoder;
-    private final MailSender mailSender;
 
-
+    @Cacheable(value = "UserService::findUserById", key = "#id")
     public UserReadDto findUserById(Long id) {
         return userRepository.findById(id)
-                .map(userReadDtoMapper)
+                .map(userReadDtoMapper::toDto)
                 .orElseThrow(() -> new UserNotExistsException(
                         "user with id [%s] does not exists".formatted(id)));
     }
 
-    //    @Transactional
-//    public UserReadDto createUser(UserCreateEditDto userCreateEditDto) {
-//        return Optional.of(userCreateEditDto)
-//                .map(userCreateEditDtoMapper)
-//                .map(userRepository::save)
-//                .map(userReadDtoMapper)
-//                .orElseThrow();
-//    }
     @Transactional
-    public UserReadDto updateUser(Long id, UserCreateEditDto userCreateEditDto) {
+    @CachePut(value = "UserService::findUserById", key = "#id")
+    @CacheEvict(value = "UserService::getLastUserChange", key = "#id")
+    public UserReadDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         return userRepository.findById(id)
-                .map(user -> userCreateEditDtoMapper.updateEntity(userCreateEditDto, user))
-                .map(userRepository::saveAndFlush)
-                .map(userReadDtoMapper)
+                .map(user -> userUpdateDtoMapper.updateEntity(userUpdateDto, user))
+                .map(userRepository::save)
+                .map(userReadDtoMapper::toDto)
                 .orElseThrow(() -> new UserNotExistsException(
                         "user with id [%s] does not exists".formatted(id)));
     }
 
     @Transactional
+    @CachePut(value = "UserService::findUserById", key = "#id")
+    @CacheEvict(value = "UserService::getLastUserChange", key = "#id")
     public UserReadDto changeUser(Long id, Map<String, Object> fields) {
         Optional<User> user = userRepository.findById(id);
 
@@ -82,16 +78,25 @@ public class UserService {
                     ReflectionUtils.setField(field, user.get(), value);
                 }
             });
-            return userReadDtoMapper.apply(userRepository.save(user.get()));
+
+            return user
+                    .map(userRepository::save)
+                    .map(userReadDtoMapper::toDto)
+                    .orElseThrow(() -> new UserNotExistsException(
+                            "User with id %s does not exists".formatted(id)));
         } else
-            throw new UserNotExistsException("user with id [%s] does not exists".formatted(id));
+            throw new UserNotExistsException("User with id %s does not exists".formatted(id));
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "UserService::findUserById", key = "#id"),
+            @CacheEvict(value = "UserService::getLastUserChange", key = "#id")}
+    )
     public void deleteUser(Long id) {
         userRepository.delete(userRepository.findById(id)
                 .orElseThrow(() -> new UserNotExistsException(
-                        "user with id [%s] does not exists".formatted(id))));
+                        "User with id %s does not exists".formatted(id))));
     }
 
     public Page<AllUsersReadDto> findAllUsersByPageableAndFilter(Pageable pageable,
@@ -108,11 +113,11 @@ public class UserService {
         return userRepository.findPageOfUsers(predicate, pageable);
     }
 
-
     public Page<Revision<Long, User>> getUserAuditing(Long id, Pageable pageable) {
         return userRepository.findRevisions(id, pageable);
     }
 
+    @Cacheable(value = "UserService::getLastUserChange", key = "#id")
     public Revision<Long, User> getLastUserChange(Long id) {
         return userRepository.findLastChangeRevision(id)
                 .orElseThrow(() -> new UserNotExistsException(
@@ -120,9 +125,13 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(ChangePasswordDto passwordDto, User user) {
+    public void changePassword(Long id, ChangePasswordDto passwordDto) {
         if (!passwordDto.getNewPassword().equals(passwordDto.getConfirmationPassword()))
             throw new InvalidPasswordException("the new password and its confirmation do not match");
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotExistsException(
+                        "User with id %s does not exists".formatted(id)));
 
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), user.getPassword()))
             throw new InvalidPasswordException("wrong password");

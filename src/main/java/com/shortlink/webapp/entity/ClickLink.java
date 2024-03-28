@@ -3,6 +3,7 @@ package com.shortlink.webapp.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,7 +18,7 @@ public class ClickLink {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime usageTime;
+    private Instant usageTime;
 
     //    @JoinColumn(nullable = true)
 //    @JoinColumn(name = "link_id")//, updatable = false)

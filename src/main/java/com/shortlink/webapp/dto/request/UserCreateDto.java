@@ -9,13 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.context.annotation.PropertySource;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateEditDto {
+public class UserCreateDto {
 
     @Username
     @NotBlank(message = "{username.notblank}")

@@ -11,12 +11,12 @@ import com.shortlink.webapp.repository.MailVerificationRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -39,11 +39,11 @@ public class MailVerificationService {
             throw new MailVerificationException("User's email already verified !");
 
         if (verification.getCreatedAt()
-                .plusMonths(tokenProperty.getVerifyEmailExpiration()) //TODO change plus months
-                .isBefore(LocalDateTime.now()))
+                .plus(tokenProperty.getVerifyEmailExpiration(), ChronoUnit.MONTHS) //TODO change plus months
+                .isBefore(Instant.now()))
             throw new MailVerificationException("Time to verify mail is expired");
 
-        mailVerificationRepository.updateVerifiedAtById(verification.getVerificationId(), LocalDateTime.now());
+        mailVerificationRepository.updateVerifiedAtById(verification.getVerificationId(), Instant.now());
 
         userRepository.updateVerifiedById(verification.getUserId());
     }

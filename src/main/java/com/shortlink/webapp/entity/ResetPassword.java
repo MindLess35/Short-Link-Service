@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Setter
@@ -25,9 +26,9 @@ public class ResetPassword {
 
     @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime resetAt;
+    private Instant resetAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;

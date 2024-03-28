@@ -7,6 +7,7 @@ import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPQLQuery;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.exception.NoSuchOrderByFieldException;
@@ -60,12 +61,15 @@ public class FilteringPaginationLinkRepositoryImpl
 
     @Override
     protected QBean<AllLinksReadDto> createProjection() {
-        StringExpression dateOfCreation = Expressions.stringTemplate("TO_CHAR({0}, 'yyyy-mm-dd HH24:MI:SS')",
+        StringExpression dateOfCreation = Expressions.stringTemplate("TO_CHAR({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')",
                         linkStatistics.dateOfCreation)
                 .as("dateOfCreation");
 
-        StringExpression dateOfLastUses = Expressions.stringTemplate("TO_CHAR({0}, 'yyyy-mm-dd HH24:MI:SS')",
+        StringExpression dateOfLastUses = Expressions.stringTemplate("TO_CHAR({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')",
                 linkStatistics.dateOfLastUses);
+
+        StringTemplate ttl = Expressions.stringTemplate("TO_CHAR({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')",
+                linkStatistics.timeToLive);
 
         return Projections.fields(
                 AllLinksReadDto.class,
@@ -76,7 +80,10 @@ public class FilteringPaginationLinkRepositoryImpl
                 dateOfLastUses.coalesce(messageSource.getMessage("link.notusedyet",
                                 null, LocaleContextHolder.getLocale()))
                         .as("dateOfLastUses"),
-                linkStatistics.countOfUses //TODO: add lifetime to queryDSL
+                linkStatistics.countOfUses, //TODO: add ttl to queryDSL
+                ttl.coalesce(messageSource.getMessage("link.ttlforever",
+                                null, LocaleContextHolder.getLocale()))
+                        .as("timeToLive")
         );
     }
 

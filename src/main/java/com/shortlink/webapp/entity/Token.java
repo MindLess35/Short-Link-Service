@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Setter
@@ -41,7 +42,7 @@ public class Token {
     //    @Builder.Default
     @CreatedDate
     @Column(name = "date_of_creation", nullable = false, updatable = false)
-    private LocalDateTime dateOfCreation;
+    private Instant dateOfCreation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")

@@ -18,11 +18,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
 public class ResetPasswordService {
     private final UserRepository userRepository;
     private final MailSender mailSender;
@@ -30,7 +31,6 @@ public class ResetPasswordService {
     private final TokenProperty tokenProperty;
     private final PasswordEncoder passwordEncoder;
 
-    //    @Transactional
     public String createResetPasswordToken(User user) {
         String token = EmailUtil.getToken();
         ResetPassword resetPassword = ResetPassword.builder()
@@ -65,11 +65,11 @@ public class ResetPasswordService {
             throw new ResetPasswordException("Reset password token already used !");
 
         if (projection.getCreatedAt()
-                .plusMonths(tokenProperty.getResetPasswordExpiration()) //TODO change plus months
-                .isBefore(LocalDateTime.now()))
+                .plus(tokenProperty.getResetPasswordExpiration(), ChronoUnit.MONTHS)//TODO change plus months
+                .isBefore(Instant.now()))
             throw new ResetPasswordException("Time to reset password is expired");
 
-        resetPasswordRepository.updateResetAtById(LocalDateTime.now(), projection.getResetId());
+        resetPasswordRepository.updateResetAtById(Instant.now(), projection.getResetId());
         userRepository.updatePasswordById(passwordEncoder.encode(newPassword), projection.getUserId());
     }
 }
