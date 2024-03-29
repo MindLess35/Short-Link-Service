@@ -21,11 +21,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/users")
 public class AdminController {
     private final UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping
     public ResponseEntity<Page<AllUsersReadDto>> getAllUsersInPages(
             @PageableDefault(sort = "username") Pageable pageable,
             @RequestParam(name = "username", required = false) String username,

@@ -6,12 +6,10 @@ import com.shortlink.webapp.exception.ImageUploadException;
 import com.shortlink.webapp.exception.UserNotExistsException;
 import com.shortlink.webapp.property.MinioProperty;
 import com.shortlink.webapp.repository.UserRepository;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserImageService {
 
     private final MinioProperty minioProperty;
@@ -28,7 +27,7 @@ public class UserImageService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Resource uploadProfileImage(MultipartFile image, Long userId) {
+    public byte[] uploadProfileImage(MultipartFile image, Long userId) {
         if (image.isEmpty())
             throw new ImageUploadException("Image must exists");
 
@@ -36,29 +35,28 @@ public class UserImageService {
                 .orElseThrow(() -> new UserNotExistsException(
                         "User with id %s does not exists".formatted(userId)));
 
-        String profileImage = UUID.randomUUID() + "-"
-                              + image.getOriginalFilename();
+        if (projection.getProfileImage() != null)
+            throw new ImageUploadException("User with id %s already have image".formatted(userId));
 
-        InputStream inputStream;
-        try {
-            inputStream = image.getInputStream();
+        String profileImage = UUID.randomUUID().toString() + userId;
+        String contentType = getContentTypeOrElseJPEG(image);
+
+        try (InputStream inputStream = image.getInputStream()) {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(minioProperty.getBucket())
                     .object(profileImage)
                     .stream(inputStream, image.getSize(), -1)
+                    .contentType(contentType)
                     .build());
-            inputStream = image.getInputStream();
+
+            userRepository.updateProfileImageById(profileImage, userId);
+
+            try (InputStream secondInputStream = image.getInputStream()) {
+                return secondInputStream.readAllBytes();
+            }
         } catch (Exception e) {
             throw new ImageUploadException(e);
         }
-
-        String previousProfileImage = projection.getProfileImage();
-        if (previousProfileImage != null)
-            deleteProfileImage(previousProfileImage);
-
-        userRepository.updateProfileImageById(profileImage, userId);
-
-        return new InputStreamResource(inputStream);
     }
 
     @Transactional
@@ -66,12 +64,6 @@ public class UserImageService {
         String profileImage = userRepository.findProfileImageById(userId)
                 .orElseThrow(() -> new DeleteImageException(
                         "User with id %s does not have image or user doesn't exists".formatted(userId)));
-
-        deleteProfileImage(profileImage);
-        userRepository.updateProfileImageToNullById(userId);
-    }
-
-    private void deleteProfileImage(String profileImage) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(minioProperty.getBucket())
@@ -80,6 +72,74 @@ public class UserImageService {
         } catch (Exception e) {
             throw new DeleteImageException("Delete image failed, reason: ", e);
         }
+        userRepository.updateProfileImageToNullById(userId);
     }
-    //todo get image add functionality
+
+    public GetObjectResponse getProfileImage(Long userId) {
+        ProfileImageWithUserIdProjection projection = userRepository.findProfileImageWithUserIdById(userId)
+                .orElseThrow(() -> new UserNotExistsException(
+                        "User with id %s does not exists".formatted(userId)));
+
+        if (projection.getProfileImage() == null)
+            throw new ImageUploadException(("User with id %s does not have" +
+                                            " image").formatted(userId));
+        try {
+            return minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(minioProperty.getBucket())
+                    .object(projection.getProfileImage())
+                    .build());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);//todo create exception for get image method
+        }
+
+    }
+
+    public byte[] updateProfileImage(MultipartFile image, Long userId) {
+        if (image.isEmpty())
+            throw new ImageUploadException("Image must exists");//todo create exception for update image method
+
+        String profileImage = userRepository.findProfileImageById(userId)
+                .orElseThrow(() -> new UserNotExistsException(
+                        "User with id %s does not exists".formatted(userId)));
+
+        String contentType = getContentTypeOrElseJPEG(image);
+
+        try (InputStream inputStream = image.getInputStream()) {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(minioProperty.getBucket())
+                    .object(profileImage)
+                    .stream(inputStream, image.getSize(), -1)
+                    .contentType(contentType)
+                    .build());
+
+            try (InputStream secondInputStream = image.getInputStream()) {
+                return secondInputStream.readAllBytes();
+            }
+        } catch (Exception e) {
+            throw new ImageUploadException(e);
+        }
+    }
+
+    public String getContentTypeOrElseJPEG(MultipartFile image) {
+        String contentType = image.getContentType();
+        return contentType == null
+                ? MediaType.IMAGE_JPEG_VALUE
+                : contentType;
+    }
+
+    public String getContentTypeOrElseJPEG(GetObjectResponse image) {
+        String contentType = image.headers().get(HttpHeaders.CONTENT_TYPE);
+        return contentType == null
+                ? MediaType.IMAGE_JPEG_VALUE
+                : contentType;
+    }
+
+    public byte[] getContent(GetObjectResponse image) {
+        try (image) {
+            return image.readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

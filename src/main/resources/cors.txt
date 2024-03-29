@@ -1,0 +1,84 @@
+https://github.com/1inch/shieldy  бот в тг
+
+@Bean
+@Primary
+public CorsConfigurationSource getCorsConfigSource() {
+  var corsConf = new CorsConfiguration();
+  corsConf.addAllowedOrigin(frontendOrigin);
+  corsConf.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+  corsConf.setAllowCredentials(true);
+  corsConf.setAllowedHeaders(List.of("*"));
+  var source = new UrlBasedCorsConfigurationSource();
+  source.registerCorsConfiguration("/**", corsConf);
+  return source;
+}
+
+Мой пример:
+
+
+@Bean
+fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    http
+        .httpBasic { httpBasic -> httpBasic.disable() }
+        .csrf { csrf -> csrf.disable() }
+        .sessionManagement { SessionManagementConfigurer().sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+        .authorizeHttpRequests { authorizeHttpRequests ->
+            authorizeHttpRequests
+                .requestMatchers(
+                    "ping",
+                    "/api/v1/auth/registration",
+                    "/api/v1/auth/otp/sms",
+                    "/api/v1/auth/login/**",
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/user/contacts/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/user/substatus").permitAll()
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+        }
+        .logout { logout ->
+            logout
+                .logoutSuccessHandler(customLogoutSuccessHandler)
+                .logoutUrl("/api/v1/auth/logout")
+                .invalidateHttpSession(true)
+        }
+        .apply(JwtConfigurer(jwtTokenProvider, tokenBlacklist))
+
+    return http.build()
+}
+
+Привет! Попробуй такую реализацию:
+
+@Configuration
+@EnableWebMvc
+class WebConfig : WebMvcConfigurer {
+
+    @Bean
+    fun corsConfigurer(): WebMvcConfigurer {
+        return object : WebMvcConfigurer {
+            override fun addCorsMappings(registry: CorsRegistry) {
+                registry.addMapping("/**")
+                    .allowedOrigins(
+                        "http://localhost:3000"
+                    )
+                    .allowedMethods(
+                        HttpMethod.GET.name(),
+                        HttpMethod.PUT.name(),
+                        HttpMethod.POST.name(),
+                        HttpMethod.PATCH.name()
+                    )
+                    .allowedHeaders("*")
+                    .allowCredentials(true)
+            }
+        }
+    }
+
+    @Bean
+    fun tokenExtractorInterceptor(): TokenExtractorInterceptor {
+        return TokenExtractorInterceptor()
+    }
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(tokenExtractorInterceptor())
+    }
+
+}

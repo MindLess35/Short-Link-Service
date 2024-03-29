@@ -82,7 +82,7 @@ public class LinkService {
 
         String key = dto.getKey();
         if (key != null)
-            savedLink.setShortLink(savedLink.getShortLink() + "/" + key);
+            savedLink.setShortLink(savedLink.getShortLink() + "/" + key);//todo change key accepting
 
         return linkReadDtoMapper.toDto(savedLink);
     }
@@ -102,7 +102,7 @@ public class LinkService {
         dto.setCustomLinkName(shortLink);//TODO
     }
 
-    private Link getLinkWithUser(@NotNull LinkCreateDto dto) {
+    private Link getLinkWithUser(LinkCreateDto dto) {
         User user = null;
         Long userId = dto.getUserId();
         boolean isLinkWithUser = userId != null;

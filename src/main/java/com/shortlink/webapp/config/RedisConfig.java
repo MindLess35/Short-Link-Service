@@ -50,47 +50,47 @@ public class RedisConfig {
 //        return redisTemplate.opsForZSet().;
 //    }
 
-    @Bean
-    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-        return (builder) -> builder
-                .withCacheConfiguration("itemCache",
-                        RedisCacheConfiguration
-                                .defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(10)))
-
-                .withCacheConfiguration("customerCache",
-                        RedisCacheConfiguration
-                                .defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(5)));
-    }
-
-    @Bean
-    public RedisCacheConfiguration cacheConfiguration() {
-        return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(60))
-                .disableCachingNullValues()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
-    }
-
-    @Bean
-    public RedisCacheConfiguration cache1Configuration() {
-        return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(5));
-    }
-
-    @Bean
-    public RedisCacheConfiguration cache2Configuration() {
-        return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1));
-    }
-
-    @Bean
-    public CacheManager cacheManager1(RedisConnectionFactory redisConnectionFactory) {
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cache1Configuration())
-                .build();
-    }
+//    @Bean
+//    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+//        return (builder) -> builder
+//                .withCacheConfiguration("itemCache",
+//                        RedisCacheConfiguration
+//                                .defaultCacheConfig()
+//                                .entryTtl(Duration.ofMinutes(10)))
+//
+//                .withCacheConfiguration("customerCache",
+//                        RedisCacheConfiguration
+//                                .defaultCacheConfig()
+//                                .entryTtl(Duration.ofMinutes(5)));
+//    }
+//
+//    @Bean
+//    public RedisCacheConfiguration cacheConfiguration() {
+//        return RedisCacheConfiguration.defaultCacheConfig()
+//                .entryTtl(Duration.ofMinutes(60))
+//                .disableCachingNullValues()
+//                .serializeValuesWith(RedisSerializationContext.SerializationPair
+//                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+//    }
+//
+//    @Bean
+//    public RedisCacheConfiguration cache1Configuration() {
+//        return RedisCacheConfiguration.defaultCacheConfig()
+//                .entryTtl(Duration.ofMinutes(5));
+//    }
+//
+//    @Bean
+//    public RedisCacheConfiguration cache2Configuration() {
+//        return RedisCacheConfiguration.defaultCacheConfig()
+//                .entryTtl(Duration.ofHours(1));
+//    }
+//
+//    @Bean
+//    public CacheManager cacheManager1(RedisConnectionFactory redisConnectionFactory) {
+//        return RedisCacheManager.builder(redisConnectionFactory)
+//                .cacheDefaults(cache1Configuration())
+//                .build();
+//    }
 
 //    @Bean
 //    public CacheManager cacheManager2(RedisConnectionFactory redisConnectionFactory) {

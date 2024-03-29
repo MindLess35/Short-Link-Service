@@ -79,6 +79,7 @@ public interface UserRepository extends
             WHERE u.id = :userId
             """)
     void updateProfileImageToNullById(Long userId);
+
     @Query("""
             SELECT u.profileImage AS profileImage,
                    u.id AS userId

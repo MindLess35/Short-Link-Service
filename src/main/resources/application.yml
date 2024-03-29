@@ -51,11 +51,11 @@ spring:
       port: 6379
       password: 12345
 
-  mvc:
-    format:
-      date-time: iso
-      date: iso
-      time: iso
+#  mvc:
+#    format:
+#      date-time: iso
+#      date: iso
+#      time: iso
 
   servlet:
     multipart:
@@ -112,8 +112,7 @@ spring:
         fetch_size: 50
         batch_size: 50
         default_schema: shortlink
-
-      #        jdbc:
+#        jdbc:
 #          time_zone: UTC
 
       org:
