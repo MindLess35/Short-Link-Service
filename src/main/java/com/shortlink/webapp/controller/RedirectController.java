@@ -27,18 +27,18 @@ public class RedirectController {
     public ResponseEntity<HttpStatus> redirectWithKey(@PathVariable("short-link-name") String shortLinkName,
                                                       @PathVariable("key") String key) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", linkService.getOriginalLinkByKey(shortLinkName, key));
+        headers.add(HttpHeaders.LOCATION, linkService.getOriginalLinkByKey(shortLinkName, key));
 
-        return new ResponseEntity<>(headers, HttpStatus.FOUND); // Код 302 - Redirect
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
 //        .location(URI.create())
     }
 
     @GetMapping("/{short-link-name}")
     public ResponseEntity<HttpStatus> redirectByOriginalLink(@PathVariable("short-link-name") String shortLinkName) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", linkService.getOriginalLink(shortLinkName));
+        headers.add(HttpHeaders.LOCATION, linkService.getOriginalLink(shortLinkName));
 
-        return new ResponseEntity<>(headers, HttpStatus.FOUND); // Код 302 - Redirect
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
 }

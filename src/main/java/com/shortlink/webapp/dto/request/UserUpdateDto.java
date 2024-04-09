@@ -1,6 +1,5 @@
 package com.shortlink.webapp.dto.request;
 
-import com.shortlink.webapp.validation.annotation.Password;
 import com.shortlink.webapp.validation.annotation.UniqueEmail;
 import com.shortlink.webapp.validation.annotation.Username;
 import jakarta.validation.constraints.Email;
@@ -25,7 +24,4 @@ public class UserUpdateDto {
     @NotBlank(message = "{email.notblank}")
     private String email;
 
-    @Password
-    @NotBlank(message = "{password.notblank}")
-    private String password;
 }

@@ -1,6 +1,7 @@
 package com.shortlink.webapp.service;
 
 import com.shortlink.webapp.dto.projection.ProfileImageWithUserIdProjection;
+import com.shortlink.webapp.dto.response.ImageCachingDto;
 import com.shortlink.webapp.exception.DeleteImageException;
 import com.shortlink.webapp.exception.ImageUploadException;
 import com.shortlink.webapp.exception.UserNotExistsException;
@@ -8,6 +9,9 @@ import com.shortlink.webapp.property.MinioProperty;
 import com.shortlink.webapp.repository.UserRepository;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,7 +31,8 @@ public class UserImageService {
     private final UserRepository userRepository;
 
     @Transactional
-    public byte[] uploadProfileImage(MultipartFile image, Long userId) {
+    @CachePut(value = "image", key = "#userId")
+    public ImageCachingDto uploadProfileImage(MultipartFile image, Long userId) {
         if (image.isEmpty())
             throw new ImageUploadException("Image must exists");
 
@@ -52,7 +57,7 @@ public class UserImageService {
             userRepository.updateProfileImageById(profileImage, userId);
 
             try (InputStream secondInputStream = image.getInputStream()) {
-                return secondInputStream.readAllBytes();
+                return new ImageCachingDto(secondInputStream.readAllBytes(), getContentTypeOrElseJPEG(image));
             }
         } catch (Exception e) {
             throw new ImageUploadException(e);
@@ -60,6 +65,7 @@ public class UserImageService {
     }
 
     @Transactional
+    @CacheEvict(value = "image", key = "#userId")
     public void deleteImage(Long userId) {
         String profileImage = userRepository.findProfileImageById(userId)
                 .orElseThrow(() -> new DeleteImageException(
@@ -75,7 +81,8 @@ public class UserImageService {
         userRepository.updateProfileImageToNullById(userId);
     }
 
-    public GetObjectResponse getProfileImage(Long userId) {
+    @Cacheable(value = "image", key = "#userId")
+    public ImageCachingDto getProfileImage(Long userId) {
         ProfileImageWithUserIdProjection projection = userRepository.findProfileImageWithUserIdById(userId)
                 .orElseThrow(() -> new UserNotExistsException(
                         "User with id %s does not exists".formatted(userId)));
@@ -83,11 +90,14 @@ public class UserImageService {
         if (projection.getProfileImage() == null)
             throw new ImageUploadException(("User with id %s does not have" +
                                             " image").formatted(userId));
+
         try {
-            return minioClient.getObject(GetObjectArgs.builder()
+            GetObjectResponse minioResponse = minioClient.getObject(GetObjectArgs.builder()
                     .bucket(minioProperty.getBucket())
                     .object(projection.getProfileImage())
                     .build());
+
+            return new ImageCachingDto(minioResponse.readAllBytes(), getContentTypeOrElseJPEG(minioResponse));
 
         } catch (Exception e) {
             throw new RuntimeException(e);//todo create exception for get image method
@@ -95,7 +105,8 @@ public class UserImageService {
 
     }
 
-    public byte[] updateProfileImage(MultipartFile image, Long userId) {
+    @CachePut(value = "image", key = "#userId")
+    public ImageCachingDto updateProfileImage(MultipartFile image, Long userId) {
         if (image.isEmpty())
             throw new ImageUploadException("Image must exists");//todo create exception for update image method
 
@@ -114,7 +125,7 @@ public class UserImageService {
                     .build());
 
             try (InputStream secondInputStream = image.getInputStream()) {
-                return secondInputStream.readAllBytes();
+                return new ImageCachingDto(secondInputStream.readAllBytes(), getContentTypeOrElseJPEG(image));
             }
         } catch (Exception e) {
             throw new ImageUploadException(e);
@@ -123,23 +134,17 @@ public class UserImageService {
 
     public String getContentTypeOrElseJPEG(MultipartFile image) {
         String contentType = image.getContentType();
-        return contentType == null
-                ? MediaType.IMAGE_JPEG_VALUE
-                : contentType;
+        return getContentType(contentType);
     }
 
     public String getContentTypeOrElseJPEG(GetObjectResponse image) {
         String contentType = image.headers().get(HttpHeaders.CONTENT_TYPE);
+        return getContentType(contentType);
+    }
+
+    private String getContentType(String contentType) {
         return contentType == null
                 ? MediaType.IMAGE_JPEG_VALUE
                 : contentType;
-    }
-
-    public byte[] getContent(GetObjectResponse image) {
-        try (image) {
-            return image.readAllBytes();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.shortlink.webapp.controller;
 
 import com.shortlink.webapp.dto.request.ChangePasswordDto;
-import com.shortlink.webapp.dto.request.UserCreateDto;
 import com.shortlink.webapp.dto.request.UserUpdateDto;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
@@ -16,12 +15,9 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController

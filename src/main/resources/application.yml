@@ -68,10 +68,10 @@ spring:
     password: 1234
     driver-class-name: org.postgresql.Driver
 
-  devtools:
-    restart:
-      additional-paths: src/main/java/com/shortlink/webapp
-      enabled: true
+#  devtools:
+#    restart:
+#      additional-paths: src/main/java/com/shortlink/webapp
+#      enabled: false
 
   mail:
     host: smtp.gmail.com

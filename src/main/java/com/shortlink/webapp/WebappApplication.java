@@ -10,29 +10,13 @@ import com.shortlink.webapp.service.JwtService;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.persistence.QueryHint;
-import org.hibernate.jpa.HibernateHints;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.*;
 
 import static com.shortlink.webapp.entity.enums.Role.ADMIN;
 import static com.shortlink.webapp.entity.enums.Role.MANAGER;
@@ -41,8 +25,11 @@ import static com.shortlink.webapp.entity.enums.Role.MANAGER;
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class WebappApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(WebappApplication.class, args);
+    }
+
 //       2007-12-03T10:15:30                        LocalDateTime
 //       2007-12-03T10:15:30+01:00                  OffsetDateTime
 //       2007-12-03T10:15:30+01:00 Europe/Paris     ZonedDateTime
@@ -74,7 +61,7 @@ public class WebappApplication {
 //
 //
 //        System.out.println();
-    }
+
 
     @Bean
     public CommandLineRunner forCreateBucketInMinio(MinioClient minioClient,
@@ -114,8 +101,6 @@ public class WebappApplication {
                         .token(accessTokenAdmin)
                         .user(savedAdmin)
                         .tokenType(TokenType.BEARER)
-                        .expired(false)
-                        .revoked(false)
                         .build();
                 tokenRepository.save(token);
             }
@@ -135,8 +120,6 @@ public class WebappApplication {
                         .token(accessTokenManager)
                         .user(savedManager)
                         .tokenType(TokenType.BEARER)
-                        .expired(false)
-                        .revoked(false)
                         .build();
                 tokenRepository.save(token);
             }
@@ -149,5 +132,6 @@ public class WebappApplication {
 
         };
     }
-
 }
+
+

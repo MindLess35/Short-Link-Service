@@ -42,29 +42,27 @@ public class UserService {
     private final UserReadDtoMapper userReadDtoMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Cacheable(value = "UserService::findUserById", key = "#id")
+    @Cacheable(value = "user", key = "#id")
     public UserReadDto findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userReadDtoMapper::toDto)
                 .orElseThrow(() -> new UserNotExistsException(
-                        "user with id [%s] does not exists".formatted(id)));
+                        "User with id %s does not exists".formatted(id)));
     }
 
     @Transactional
-    @CachePut(value = "UserService::findUserById", key = "#id")
-    @CacheEvict(value = "UserService::getLastUserChange", key = "#id")
+    @CachePut(value = "user", key = "#id")
     public UserReadDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         return userRepository.findById(id)
                 .map(user -> userUpdateDtoMapper.updateEntity(userUpdateDto, user))
                 .map(userRepository::save)
                 .map(userReadDtoMapper::toDto)
                 .orElseThrow(() -> new UserNotExistsException(
-                        "user with id [%s] does not exists".formatted(id)));
+                        "User with id %s does not exists".formatted(id)));
     }
 
     @Transactional
-    @CachePut(value = "UserService::findUserById", key = "#id")
-    @CacheEvict(value = "UserService::getLastUserChange", key = "#id")
+    @CachePut(value = "user", key = "#id")
     public UserReadDto changeUser(Long id, Map<String, Object> fields) {
         Optional<User> user = userRepository.findById(id);
 
@@ -73,8 +71,6 @@ public class UserService {
                 Field field = ReflectionUtils.findField(User.class, key);
                 if (field != null) {
                     field.setAccessible(true);
-                }
-                if (field != null) {
                     ReflectionUtils.setField(field, user.get(), value);
                 }
             });
@@ -89,10 +85,7 @@ public class UserService {
     }
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "UserService::findUserById", key = "#id"),
-            @CacheEvict(value = "UserService::getLastUserChange", key = "#id")}
-    )
+    @CacheEvict(value = "user", key = "#id")
     public void deleteUser(Long id) {
         userRepository.delete(userRepository.findById(id)
                 .orElseThrow(() -> new UserNotExistsException(
@@ -117,7 +110,6 @@ public class UserService {
         return userRepository.findRevisions(id, pageable);
     }
 
-    @Cacheable(value = "UserService::getLastUserChange", key = "#id")
     public Revision<Long, User> getLastUserChange(Long id) {
         return userRepository.findLastChangeRevision(id)
                 .orElseThrow(() -> new UserNotExistsException(

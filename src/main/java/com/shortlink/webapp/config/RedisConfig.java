@@ -1,17 +1,14 @@
 package com.shortlink.webapp.config;
 
-import com.shortlink.webapp.property.MailProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
@@ -20,10 +17,10 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RedisConfig {
 
-    private final MailProperty mailProperty;
+//    private final MailProperty mailProperty;
 
 
-//    @Bean
+    //    @Bean
 //    public RedisConnectionFactory redisConnectionFactory() {
 //        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory();
 //        lettuceConnectionFactory.setHostName("localhost");
@@ -31,38 +28,34 @@ public class RedisConfig {
 //        lettuceConnectionFactory.afterPropertiesSet();
 //        return lettuceConnectionFactory;
 //    }
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
 
-//    @Bean
-//    public RedisTemplate<String, Object> redisTemplate() {
-//        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-//        redisTemplate.setConnectionFactory(redisConnectionFactory());
-//        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
-//        redisTemplate.afterPropertiesSet();
-//        return redisTemplate.opsForValue();
-//        return redisTemplate.opsForHash().put();
-//        return redisTemplate.opsForSet().;
-//        return redisTemplate.execute();
-//        return redisTemplate.execute();
-//        return redisTemplate.expire();
-//        return redisTemplate.boundValueOps().;
-//        return redisTemplate.executePipelined();
-//        new HashSet<>().
-//        return redisTemplate.opsForZSet().;
-//    }
 
-//    @Bean
-//    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-//        return (builder) -> builder
-//                .withCacheConfiguration("itemCache",
-//                        RedisCacheConfiguration
-//                                .defaultCacheConfig()
-//                                .entryTtl(Duration.ofMinutes(10)))
-//
-//                .withCacheConfiguration("customerCache",
-//                        RedisCacheConfiguration
-//                                .defaultCacheConfig()
-//                                .entryTtl(Duration.ofMinutes(5)));
-//    }
+    @Bean
+    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+        return builder -> builder
+                .withCacheConfiguration("user",
+                        RedisCacheConfiguration
+                                .defaultCacheConfig()
+                                .entryTtl(Duration.ofMinutes(5)))
+
+                .withCacheConfiguration("image",
+                        RedisCacheConfiguration
+                                .defaultCacheConfig()
+                                .entryTtl(Duration.ofMinutes(5)))
+
+                .withCacheConfiguration("link",
+                        RedisCacheConfiguration
+                                .defaultCacheConfig()
+                                .entryTtl(Duration.ofMinutes(10)));
+    }
 //
 //    @Bean
 //    public RedisCacheConfiguration cacheConfiguration() {
