@@ -8,7 +8,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class LinkReadDto implements Serializable {
 
@@ -21,4 +20,5 @@ public class LinkReadDto implements Serializable {
 
     private String shortLink;
 
+    //    private Long userId;//todo add ttl here
 }

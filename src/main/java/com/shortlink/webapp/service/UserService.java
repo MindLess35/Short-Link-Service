@@ -7,17 +7,14 @@ import com.shortlink.webapp.dto.response.AllUsersReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.Role;
-import com.shortlink.webapp.exception.InvalidPasswordException;
-import com.shortlink.webapp.exception.UserNotExistsException;
+import com.shortlink.webapp.exception.user.InvalidPasswordException;
+import com.shortlink.webapp.exception.base.ResourceNotFoundException;
 import com.shortlink.webapp.mapper.UserReadDtoMapper;
 import com.shortlink.webapp.mapper.UserUpdateDtoMapper;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.util.QPredicates;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
@@ -36,33 +33,34 @@ import static com.shortlink.webapp.entity.QUser.user;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@CacheConfig(cacheResolver = "userCacheResolver")
 public class UserService {
     private final UserRepository userRepository;
     private final UserUpdateDtoMapper userUpdateDtoMapper;
     private final UserReadDtoMapper userReadDtoMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Cacheable(value = "user", key = "#id")
+    @Cacheable(key = "#id")
     public UserReadDto findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userReadDtoMapper::toDto)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));
     }
 
     @Transactional
-    @CachePut(value = "user", key = "#id")
+    @CachePut(key = "#id")
     public UserReadDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         return userRepository.findById(id)
                 .map(user -> userUpdateDtoMapper.updateEntity(userUpdateDto, user))
                 .map(userRepository::save)
                 .map(userReadDtoMapper::toDto)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));
     }
 
     @Transactional
-    @CachePut(value = "user", key = "#id")
+    @CachePut(key = "#id")
     public UserReadDto changeUser(Long id, Map<String, Object> fields) {
         Optional<User> user = userRepository.findById(id);
 
@@ -78,17 +76,17 @@ public class UserService {
             return user
                     .map(userRepository::save)
                     .map(userReadDtoMapper::toDto)
-                    .orElseThrow(() -> new UserNotExistsException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "User with id %s does not exists".formatted(id)));
         } else
-            throw new UserNotExistsException("User with id %s does not exists".formatted(id));
+            throw new ResourceNotFoundException("User with id %s does not exists".formatted(id));
     }
 
     @Transactional
-    @CacheEvict(value = "user", key = "#id")
+    @CacheEvict(key = "#id")
     public void deleteUser(Long id) {
         userRepository.delete(userRepository.findById(id)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id))));
     }
 
@@ -112,7 +110,7 @@ public class UserService {
 
     public Revision<Long, User> getLastUserChange(Long id) {
         return userRepository.findLastChangeRevision(id)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));
     }
 
@@ -122,7 +120,7 @@ public class UserService {
             throw new InvalidPasswordException("the new password and its confirmation do not match");
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));
 
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), user.getPassword()))

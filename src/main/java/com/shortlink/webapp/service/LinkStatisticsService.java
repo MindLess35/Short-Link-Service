@@ -1,5 +1,6 @@
 package com.shortlink.webapp.service;
 
+import com.shortlink.webapp.dto.projection.LinkWithTtlProjection;
 import com.shortlink.webapp.dto.projection.TopLinkSourceSitesProjection;
 import com.shortlink.webapp.entity.Link;
 import com.shortlink.webapp.entity.LinkStatistics;
@@ -50,8 +51,12 @@ public class LinkStatisticsService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean isTimeToLiveExpired(LinkStatistics linkStatistics) {
+        Instant timeToLive = linkStatistics.getTimeToLive();
+        if (timeToLive == null)
+            return false;
+
         if (Instant.now()
-                .isAfter(linkStatistics.getTimeToLive())) {
+                .isAfter(timeToLive)) {
             linkRepository.delete(linkStatistics.getLink());
             return true;
         }
@@ -64,5 +69,10 @@ public class LinkStatisticsService {
 
     public Long getCountAllClicks() {
         return linkStatisticsRepository.sumByCountOfUses();
+    }
+
+    //    @Transactional
+    public void changeTtl(Long linkId, Instant ttl) {
+        linkStatisticsRepository.changeTtlByLinkId(linkId, ttl);
     }
 }

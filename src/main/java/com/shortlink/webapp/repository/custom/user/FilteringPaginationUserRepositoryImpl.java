@@ -5,23 +5,15 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.EntityPathBase;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPQLQuery;
-import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.AllUsersReadDto;
-import com.shortlink.webapp.entity.QUser;
-import com.shortlink.webapp.exception.NoSuchOrderByFieldException;
+import com.shortlink.webapp.exception.link.NoSuchOrderByFieldException;
 import com.shortlink.webapp.repository.custom.FilteringPaginationBase;
 import jakarta.persistence.EntityManager;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import static com.shortlink.webapp.entity.QLink.link;
-import static com.shortlink.webapp.entity.QLinkStatistics.linkStatistics;
 import static com.shortlink.webapp.entity.QUser.user;
 
 public class FilteringPaginationUserRepositoryImpl

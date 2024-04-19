@@ -1,43 +1,38 @@
 package com.shortlink.webapp.service;
 
 import com.querydsl.core.types.Predicate;
+import com.shortlink.webapp.dto.projection.LinkWithTtlProjection;
 import com.shortlink.webapp.dto.request.LinkCreateDto;
 import com.shortlink.webapp.dto.request.LinkUpdateDto;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
 import com.shortlink.webapp.dto.response.LinkReadDto;
 import com.shortlink.webapp.entity.Link;
 import com.shortlink.webapp.entity.User;
-import com.shortlink.webapp.event.AddLinkUsageEvent;
-import com.shortlink.webapp.exception.InvalidKeyException;
-import com.shortlink.webapp.exception.LifeTimeExpiredException;
-import com.shortlink.webapp.exception.LinkNotExistsException;
-import com.shortlink.webapp.exception.UserNotExistsException;
+import com.shortlink.webapp.exception.base.ResourceNotFoundException;
 import com.shortlink.webapp.mapper.LinkCreateDtoMapper;
 import com.shortlink.webapp.mapper.LinkReadDtoMapper;
 import com.shortlink.webapp.mapper.LinkUpdateDtoMapper;
+import com.shortlink.webapp.property.CacheProperty;
 import com.shortlink.webapp.property.LinkProperty;
 import com.shortlink.webapp.repository.LinkRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.util.LinkUtil;
 import com.shortlink.webapp.util.QPredicates;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Collections;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static com.shortlink.webapp.entity.QLink.link;
 import static com.shortlink.webapp.entity.QLinkStatistics.linkStatistics;
@@ -53,39 +48,39 @@ public class LinkService {
     private final LinkUpdateDtoMapper linkUpdateDtoMapper;
     private final LinkReadDtoMapper linkReadDtoMapper;
     private final LinkStatisticsService linkStatisticsService;
-    private final ApplicationEventPublisher publisher;
     private final LinkProperty linkProperty;
+    private final RedisTemplate<String, LinkReadDto> redisTemplate;
+    private final CacheProperty cacheProperty;
 
-    @Cacheable(value = "LinkService::getLinkById", key = "#id") //todo solve n + 1
     public LinkReadDto getLinkById(Long id) {
-        return linkRepository.findById(id)
-                .map(linkReadDtoMapper::toDto)
-                .orElseThrow(() -> new LinkNotExistsException(
+        LinkReadDto result = getLinkFromCache(id);
+        if (result != null)
+            return result;
+
+        //todo solve n + 1 when find link also retrieved link stat
+        LinkWithTtlProjection linkWithTtl = linkRepository.findLinkWithTtlById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Link with id %s does not exists".formatted(id)));
+        LinkReadDto linkReadDto = linkReadDtoMapper.toDto(linkWithTtl);
+
+        cacheLink(linkReadDto, linkWithTtl.getTtl());
+        return linkReadDto;
     }
 
     @Transactional
-//    @CacheEvict(value = "LinkService::getLinkById", key = "#") //todo add manual redis cache by deleteAllUsersLinks
-    public void deleteAllUsersLinks(Long userId) {
-        linkRepository.deleteAllByUser(userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotExistsException(
-                        "User with id %s does not exists".formatted(userId))));
-    }
-
-    @Transactional
-    @CachePut(value = "LinkService::getLinkById", key = "#result.id")
     public LinkReadDto createLink(LinkCreateDto dto) {
         setShortLink(dto);
         Link link = getLinkWithUser(dto);
 
+        Instant timeToLive = dto.getTimeToLive();
         Link savedLink = linkRepository.save(link);
-        linkStatisticsService.createLinkStatistics(savedLink, dto.getTimeToLive());
+        linkStatisticsService.createLinkStatistics(savedLink, timeToLive);
 
-        String key = dto.getKey();
-        if (key != null)
-            savedLink.setShortLink(savedLink.getShortLink() + "/" + key);//todo change key accepting
+        LinkReadDto linkReadDto = linkReadDtoMapper.toDto(savedLink);
 
-        return linkReadDtoMapper.toDto(savedLink);
+        cacheLink(linkReadDto, timeToLive);
+
+        return linkReadDto;
     }
 
     private void setShortLink(LinkCreateDto dto) {
@@ -110,7 +105,7 @@ public class LinkService {
 
         if (isLinkWithUser) {
             user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserNotExistsException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "user with id %s does not exists".formatted(userId)));
         }
         Link link = linkCreateDtoMapper.toEntity(dto);
@@ -119,52 +114,66 @@ public class LinkService {
         return link;
     }
 
-    public String getOriginalLinkByKey(String shortLinkName, String maybeKey) {
-        Link link = linkRepository.findByShortLink(LinkUtil.APPLICATION_URL + shortLinkName) //todo solve n + 1
-                .orElseThrow(() -> new LinkNotExistsException(
-                        "link with the name of the short link [%s] does not exists"
-                                .formatted(shortLinkName)));
+    private long resolveTtl(Instant ttl) {
+        long linkCacheTtlInSeconds = cacheProperty.getLinkCacheTtlInSeconds();
+        if (ttl == null)
+            return linkCacheTtlInSeconds;
 
-        if (linkStatisticsService.isTimeToLiveExpired(link.getLinkStatistics()))
-            throw new LifeTimeExpiredException("the link's lifetime has expired");
-
-        if (LinkUtil.isCorrectKey(maybeKey, link.getKey())) {
-            publisher.publishEvent(new AddLinkUsageEvent(link.getLinkStatistics()));
-            return link.getOriginalLink();
-
-        } else
-            throw new InvalidKeyException(String.format("the %s key is invalid", maybeKey));
+        long userTtlInSecond = ttl
+                .minus(Instant.now().getEpochSecond(), ChronoUnit.SECONDS).getEpochSecond();
+        return Math.min(userTtlInSecond, linkCacheTtlInSeconds);
     }
 
-    public String getOriginalLink(String shortLinkName) { //todo add manual redis cache by link ttl
-        Link link = linkRepository.findByShortLink(LinkUtil.APPLICATION_URL + shortLinkName)
-                .orElseThrow(() -> new LinkNotExistsException(
-                        "link with the name of the short link [%s] does not exists"
-                                .formatted(shortLinkName)));
+    private void cacheLink(LinkReadDto linkReadDto, Instant ttl) {
+        redisTemplate.opsForValue().set(getLinkKey(linkReadDto.getId()),
+                linkReadDto, resolveTtl(ttl), TimeUnit.SECONDS);
+    }
 
-        if (link.getKey() != null)
-            throw new InvalidKeyException("this link is only available by key");
+    private LinkReadDto getLinkFromCache(Long key) {
+        return redisTemplate.opsForValue().get(getLinkKey(key));
+    }
 
-        if (linkStatisticsService.isTimeToLiveExpired(link.getLinkStatistics()))
-            throw new LifeTimeExpiredException("the link's lifetime has expired");
-
-        publisher.publishEvent(new AddLinkUsageEvent(link.getLinkStatistics()));
-        return link.getOriginalLink();
+    private String getLinkKey(Long key) {
+        return cacheProperty.getLinkCacheName() + "::" + key;
     }
 
     @Transactional
-    @CacheEvict(value = "LinkService::getLinkById", key = "#id")
+    public void deleteAllUsersLinks(Long userId) {
+        Stream<Long> linkIds = linkRepository.deleteAllByUserId(userRepository.findById(userId)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id %s does not exists".formatted(userId))));
+
+        redisTemplate.delete(linkIds
+                .map(this::getLinkKey)
+                .toList()
+        );
+    }
+
+//    private LinkReadDto setUserIdToDto(Link link) {
+//        Long userId = null;
+//        User user = link.getUser();
+//        if (user != null)
+//            userId = user.getId();
+//
+//        LinkReadDto linkReadDto = linkReadDtoMapper.toDto(link);
+//        linkReadDto.setUserId(userId);
+//        return linkReadDto;
+//    }
+
+    @Transactional
     public void deleteLink(Long id) {
         linkRepository.delete(linkRepository.findById(id)
-                .orElseThrow(() -> new LinkNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "link with id %s does not exists".formatted(id))));
+
+        redisTemplate.delete(getLinkKey(id));
     }
 
 
     @Transactional
-    @CachePut(value = "LinkService::getLinkById", key = "#id")
     public LinkReadDto changeLink(Long id, Map<String, Object> fields) {
-        Optional<Link> link = linkRepository.findById(id);
+        Optional<Link> link = linkRepository.findById(id);//TODO do anything with this patch change
 
         if (link.isPresent()) {
             fields.forEach((key, value) -> {
@@ -176,18 +185,38 @@ public class LinkService {
             });
             return linkReadDtoMapper.toDto(linkRepository.save(link.get()));
         } else
-            throw new LinkNotExistsException("link with id [%s] does not exists".formatted(id));
+            throw new ResourceNotFoundException("link with id %s does not exists".formatted(id));
     }
 
+//    @Transactional
+//    public LinkReadDto updateLink(Long id, LinkUpdateDto dto) {
+//        LinkReadDto linkReadDto = linkRepository.findById(id)
+//                .map(link -> linkUpdateDtoMapper.updateEntity(link, dto))
+//                .map(linkRepository::save)
+//                .map(linkReadDtoMapper::toDto)
+//                .orElseThrow(() -> new ResourceNotFoundException(
+//                        "Link with id %s does not exists".formatted(id)));
+//        return linkReadDto;
+//    }
+
     @Transactional
-    @CachePut(value = "LinkService::getLinkById", key = "#id")
     public LinkReadDto updateLink(Long id, LinkUpdateDto dto) {
-        return linkRepository.findById(id)
-                .map(link -> linkUpdateDtoMapper.updateEntity(link, dto))
-                .map(linkRepository::save)
-                .map(linkReadDtoMapper::toDto)
-                .orElseThrow(() -> new LinkNotExistsException(
+        LinkWithTtlProjection linkWithTtl = linkRepository.findLinkWithTtlById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Link with id %s does not exists".formatted(id)));
+
+        dto.setCustomLinkName(LinkUtil.APPLICATION_URL + dto.getCustomLinkName());
+
+        LinkReadDto linkReadDto = Optional.of(dto)
+                .map(d -> linkUpdateDtoMapper.updateEntity(id, d))
+                .map(linkRepository::save)// todo n + 1 solve
+                .map(linkReadDtoMapper::toDto)
+                .get();
+
+        linkStatisticsService.changeTtl(id, dto.getTimeToLive());
+
+        cacheLink(linkReadDto, linkWithTtl.getTtl());
+        return linkReadDto;
     }
 
     public Page<AllLinksReadDto> findAllLinksByPageableAndFilter(Pageable pageable,
@@ -237,7 +266,7 @@ public class LinkService {
                                                                      Long countOfUses,
                                                                      Instant timeToLive) {
         User retrievedUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));
 
         QPredicates qPredicate = createQPredicate(

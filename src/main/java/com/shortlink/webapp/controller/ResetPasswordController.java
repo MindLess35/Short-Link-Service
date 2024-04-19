@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/reset-password")
+@RequestMapping("/api/v1/users")
 public class ResetPasswordController {
 
     private final ResetPasswordService resetPasswordService;
@@ -20,7 +20,7 @@ public class ResetPasswordController {
         return ResponseEntity.accepted().build();
     }
 
-    @PostMapping
+    @PostMapping("/reset-password")
     public ResponseEntity<HttpStatus> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto,
                                                     @RequestParam(name = "token") String token) {
         resetPasswordService.resetPassword(resetPasswordDto, token);

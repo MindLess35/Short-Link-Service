@@ -4,8 +4,8 @@ import com.shortlink.webapp.dto.projection.MailVerificationWithUserProjection;
 import com.shortlink.webapp.entity.MailVerification;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.MailType;
-import com.shortlink.webapp.exception.MailVerificationException;
-import com.shortlink.webapp.exception.UserNotExistsException;
+import com.shortlink.webapp.exception.user.MailVerificationException;
+import com.shortlink.webapp.exception.base.ResourceNotFoundException;
 import com.shortlink.webapp.property.TokenProperty;
 import com.shortlink.webapp.repository.MailVerificationRepository;
 import com.shortlink.webapp.repository.UserRepository;
@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +61,7 @@ public class MailVerificationService {
 
     @Transactional
     public void sendVerificationToken(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotExistsException(
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(
                 "User with id %s does not exists".formatted(userId)));
 
         if (user.getVerified())

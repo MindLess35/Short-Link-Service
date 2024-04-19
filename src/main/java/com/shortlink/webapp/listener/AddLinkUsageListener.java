@@ -23,7 +23,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class AddLinkUsageListener {
-
     private final LinkStatisticsRepository linkStatisticsRepository;
     private final ClickLinkRepository clickLinkRepository;
 

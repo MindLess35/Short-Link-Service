@@ -1,8 +1,11 @@
 package com.shortlink.webapp.config;
 
+import com.shortlink.webapp.property.CacheProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -10,14 +13,16 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.io.Serializable;
 import java.time.Duration;
+import java.util.stream.Stream;
 
 @EnableCaching
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
 
-//    private final MailProperty mailProperty;
+    private final CacheProperty cacheProperty;
 
 
     //    @Bean
@@ -29,33 +34,52 @@ public class RedisConfig {
 //        return lettuceConnectionFactory;
 //    }
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public <V extends Serializable> RedisTemplate<String, V> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, V> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
-        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
+
+//    @Bean
+//    public RedisTemplate<String, RedirectLinkDto> redisTemplateForLink(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, RedirectLinkDto> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(redisConnectionFactory);
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.afterPropertiesSet();
+//        return redisTemplate;
+//    }
 
 
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("user",
+                .withCacheConfiguration(cacheProperty.getUserCacheName(),
                         RedisCacheConfiguration
                                 .defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(5)))
+                                .entryTtl(Duration.ofSeconds(cacheProperty.getUserCacheTtlInSeconds())))
 
-                .withCacheConfiguration("image",
+                .withCacheConfiguration(cacheProperty.getImageCacheName(),
                         RedisCacheConfiguration
                                 .defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(5)))
-
-                .withCacheConfiguration("link",
-                        RedisCacheConfiguration
-                                .defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(10)));
+                                .entryTtl(Duration.ofSeconds(cacheProperty.getImageCacheTtlInSeconds())));
     }
+
+    @Bean
+    public CacheResolver imageCacheResolver(CacheManager cacheManager) {
+        return context -> Stream.of(cacheProperty.getImageCacheName())
+                .map(cacheManager::getCache)
+                .toList();
+    }
+
+    @Bean
+    public CacheResolver userCacheResolver(CacheManager cacheManager) {
+        return context -> Stream.of(cacheProperty.getUserCacheName())
+                .map(cacheManager::getCache)
+                .toList();
+    }
+
 //
 //    @Bean
 //    public RedisCacheConfiguration cacheConfiguration() {

@@ -2,13 +2,17 @@ package com.shortlink.webapp.service;
 
 import com.shortlink.webapp.dto.projection.ProfileImageWithUserIdProjection;
 import com.shortlink.webapp.dto.response.ImageCachingDto;
-import com.shortlink.webapp.exception.DeleteImageException;
-import com.shortlink.webapp.exception.ImageUploadException;
-import com.shortlink.webapp.exception.UserNotExistsException;
+import com.shortlink.webapp.exception.base.ResourceNotFoundException;
+import com.shortlink.webapp.exception.user.ImageOperationException;
 import com.shortlink.webapp.property.MinioProperty;
 import com.shortlink.webapp.repository.UserRepository;
-import io.minio.*;
+import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +28,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@CacheConfig(cacheResolver = "imageCacheResolver")
 public class UserImageService {
 
     private final MinioProperty minioProperty;
@@ -31,17 +36,17 @@ public class UserImageService {
     private final UserRepository userRepository;
 
     @Transactional
-    @CachePut(value = "image", key = "#userId")
+    @CachePut(key = "#userId")
     public ImageCachingDto uploadProfileImage(MultipartFile image, Long userId) {
         if (image.isEmpty())
-            throw new ImageUploadException("Image must exists");
+            throw new ImageOperationException("Image must exists");
 
         ProfileImageWithUserIdProjection projection = userRepository.findProfileImageWithUserIdById(userId)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(userId)));
 
         if (projection.getProfileImage() != null)
-            throw new ImageUploadException("User with id %s already have image".formatted(userId));
+            throw new ImageOperationException("User with id %s already have image".formatted(userId));
 
         String profileImage = UUID.randomUUID().toString() + userId;
         String contentType = getContentTypeOrElseJPEG(image);
@@ -60,15 +65,15 @@ public class UserImageService {
                 return new ImageCachingDto(secondInputStream.readAllBytes(), getContentTypeOrElseJPEG(image));
             }
         } catch (Exception e) {
-            throw new ImageUploadException(e);
+            throw new ImageOperationException(e);
         }
     }
 
     @Transactional
-    @CacheEvict(value = "image", key = "#userId")
+    @CacheEvict(key = "#userId")
     public void deleteImage(Long userId) {
         String profileImage = userRepository.findProfileImageById(userId)
-                .orElseThrow(() -> new DeleteImageException(
+                .orElseThrow(() -> new ImageOperationException(
                         "User with id %s does not have image or user doesn't exists".formatted(userId)));
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -76,19 +81,19 @@ public class UserImageService {
                     .object(profileImage)
                     .build());
         } catch (Exception e) {
-            throw new DeleteImageException("Delete image failed, reason: ", e);
+            throw new ImageOperationException("Delete image failed, reason: ", e);
         }
         userRepository.updateProfileImageToNullById(userId);
     }
 
-    @Cacheable(value = "image", key = "#userId")
+    @Cacheable(key = "#userId")
     public ImageCachingDto getProfileImage(Long userId) {
         ProfileImageWithUserIdProjection projection = userRepository.findProfileImageWithUserIdById(userId)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(userId)));
 
         if (projection.getProfileImage() == null)
-            throw new ImageUploadException(("User with id %s does not have" +
+            throw new ImageOperationException(("User with id %s does not have" +
                                             " image").formatted(userId));
 
         try {
@@ -105,13 +110,13 @@ public class UserImageService {
 
     }
 
-    @CachePut(value = "image", key = "#userId")
+    @CachePut(key = "#userId")
     public ImageCachingDto updateProfileImage(MultipartFile image, Long userId) {
         if (image.isEmpty())
-            throw new ImageUploadException("Image must exists");//todo create exception for update image method
+            throw new ImageOperationException("Image must exists");//todo create exception for update image method
 
         String profileImage = userRepository.findProfileImageById(userId)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(userId)));
 
         String contentType = getContentTypeOrElseJPEG(image);
@@ -128,7 +133,7 @@ public class UserImageService {
                 return new ImageCachingDto(secondInputStream.readAllBytes(), getContentTypeOrElseJPEG(image));
             }
         } catch (Exception e) {
-            throw new ImageUploadException(e);
+            throw new ImageOperationException(e);
         }
     }
 

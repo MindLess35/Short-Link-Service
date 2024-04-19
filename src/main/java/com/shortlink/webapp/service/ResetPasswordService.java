@@ -5,10 +5,9 @@ import com.shortlink.webapp.dto.request.ResetPasswordDto;
 import com.shortlink.webapp.entity.ResetPassword;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.MailType;
-import com.shortlink.webapp.exception.InvalidPasswordException;
-import com.shortlink.webapp.exception.MailVerificationException;
-import com.shortlink.webapp.exception.ResetPasswordException;
-import com.shortlink.webapp.exception.UserNotExistsException;
+import com.shortlink.webapp.exception.user.InvalidPasswordException;
+import com.shortlink.webapp.exception.user.ResetPasswordException;
+import com.shortlink.webapp.exception.base.ResourceNotFoundException;
 import com.shortlink.webapp.property.TokenProperty;
 import com.shortlink.webapp.repository.ResetPasswordRepository;
 import com.shortlink.webapp.repository.UserRepository;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Service
@@ -45,11 +43,11 @@ public class ResetPasswordService {
     @Transactional
     public void forgotPassword(String emailOrUsername) {
         User user = userRepository.findByEmailOrUsername(emailOrUsername)
-                .orElseThrow(() -> new UserNotExistsException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User with email or username %s does not exists".formatted(emailOrUsername)));
 
         String token = createResetPasswordToken(user);
-        mailSender.sendEmail(MailType.FORGOT_PASSWORD, user, EmailUtil.FORGOT_PASSWORD_URL + token);
+        mailSender.sendEmail(MailType.FORGOT_PASSWORD, user, EmailUtil.RESET_PASSWORD_URL + token);
     }
 
     @Transactional

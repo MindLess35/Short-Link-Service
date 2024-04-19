@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -35,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChainDev(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+//                .cors(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable);
@@ -53,7 +56,32 @@ public class SecurityConfig {
                 .logoutSuccessHandler((request, response, authentication) ->
                         SecurityContextHolder.clearContext())
         );
-
+//        @Override
+//        protected void configure (HttpSecurity http) throws Exception {
+//
+//            http.cors().configurationSource(request ->
+//            {
+//                CorsConfiguration cors = new CorsConfiguration();
+//                cors.setAllowedMethods(
+//                        Arrays.asList(HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.POST.name()));
+//                cors.applyPermitDefaultValues();
+//
+//                return cors;
+//
+//            }).httpBasic();
+//
+//        }
+//        httpSecurity.cors(request -> request.configurationSource({
+//                CorsConfiguration cors = new CorsConfiguration();
+//        cors.setAllowedMethods(
+//                Arrays.asList(HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.POST.name()));
+//        cors.applyPermitDefaultValues();
+//
+//        return cors;
+//                    )
+//                }
+//
+//        )
         return httpSecurity.build();
     }
 
@@ -63,7 +91,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+//                .cors(AbstractHttpConfigurer::disable) //todo add cors for redirection
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable);
@@ -71,8 +99,8 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers("/api/v1/users/**").authenticated()
                 .anyRequest().permitAll());
-////                        .requestMatchers(WHITE_LIST_URL)
-////                        .permitAll()
+//                        .requestMatchers(WHITE_LIST_URL)
+//                        .permitAll()
 //                .requestMatchers("/api/v1/manager/**").hasAnyRole(ADMIN.name(), MANAGER.name())
 //                .requestMatchers(GET, "/api/v1/manager/**").hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
 //                .requestMatchers(POST, "/api/v1/manager/**").hasAnyAuthority(ADMIN_CREATE.name(), MANAGER_CREATE.name())

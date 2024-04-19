@@ -10,7 +10,7 @@ import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPQLQuery;
 import com.shortlink.webapp.dto.response.AllLinksReadDto;
-import com.shortlink.webapp.exception.NoSuchOrderByFieldException;
+import com.shortlink.webapp.exception.link.NoSuchOrderByFieldException;
 import com.shortlink.webapp.repository.custom.FilteringPaginationBase;
 import jakarta.persistence.EntityManager;
 import org.springframework.context.MessageSource;

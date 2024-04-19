@@ -1,0 +1,79 @@
+version: "3.8"
+name: shortlink
+
+services:
+  app:
+    build:
+      context: .
+    container_name: shortlink
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+      - minio
+      - redis
+    env_file:
+      - .env
+    ports:
+      - "${APPLICATION_PORT}:8080"
+
+
+  postgres:
+    image: postgres:15.6
+    container_name: postgres
+    networks:
+      - app-network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
+
+
+  minio:
+    image: minio/minio:RELEASE.2024-03-15T01-07-19Z.fips
+    container_name: minio
+    networks:
+      - app-network
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USERNAME}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+    command: server /data --console-address :${MINIO_CONSOLE_PORT}
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    volumes:
+      - minio-data:/data
+
+
+
+networks:
+  app-network:
+    driver: bridge
+
+
+volumes:
+  cache:
+    driver: local
+
+  postgres-data:
+    driver: local
+
+  minio-data:
+    driver: local

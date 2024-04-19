@@ -66,9 +66,9 @@ public class LinkUtil {
         return RandomStringUtils.random(count, true, true);
     }
 
-    public boolean isCorrectKey(String maybeKey, String correctKey) {
-        return Objects.equals(maybeKey, correctKey);
-    }
+//    public boolean isCorrectKey(String maybeKey, String correctKey) {
+//        return Objects.equals(maybeKey, correctKey);
+//    }
 
 //    public static String getCurrentDomain() {
 //        return DOMAIN;

@@ -7,11 +7,12 @@ import com.shortlink.webapp.entity.Token;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.MailType;
 import com.shortlink.webapp.entity.enums.TokenType;
-import com.shortlink.webapp.exception.InvalidJwtException;
+import com.shortlink.webapp.exception.security.InvalidJwtException;
 import com.shortlink.webapp.mapper.UserCreateDtoMapper;
 import com.shortlink.webapp.repository.TokenRepository;
 import com.shortlink.webapp.repository.UserRepository;
 import com.shortlink.webapp.util.EmailUtil;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,7 @@ public class AuthService {
 
     @Transactional
     public JwtResponseDto createUser(UserCreateDto userCreateDto) {
+        // todo use jwt in header and return user as body
         User user = userCreateDtoMapper.toEntity(userCreateDto);
         User savedUser = userRepository.save(user);
         String accessToken = jwtService.generateToken(user);
@@ -67,7 +69,7 @@ public class AuthService {
 
     @Transactional
     public JwtResponseDto login(UserLoginDto userLoginDto) {
-        authenticationManager.authenticate(
+        authenticationManager.authenticate( //todo use auth which this method return
                 new UsernamePasswordAuthenticationToken(
                         userLoginDto.getUsername(),
                         userLoginDto.getPassword()
@@ -103,8 +105,6 @@ public class AuthService {
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
                 .build();
         tokenRepository.save(token);
     }
@@ -155,7 +155,7 @@ public class AuthService {
         String refreshToken;
         String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidJwtException("jwt is invalid");
+            throw new InvalidJwtException("JWT is invalid");
         }
         refreshToken = authHeader.substring(7);
         username = jwtService.extractUsername(refreshToken);
@@ -170,9 +170,8 @@ public class AuthService {
                 return new JwtResponseDto(accessToken, refreshToken);
             }
         }
-        throw new InvalidJwtException("jwt is invalid");
+        throw new InvalidJwtException("JWT is invalid");
     }
 
 }
-
 

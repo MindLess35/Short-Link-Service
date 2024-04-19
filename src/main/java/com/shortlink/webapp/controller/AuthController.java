@@ -25,7 +25,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(userCreateDto));
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/sign-in") //todo add token in header
     public ResponseEntity<JwtResponseDto> authenticate(@RequestBody UserLoginDto userLoginDto) {
         return ResponseEntity.ok(authService.login(userLoginDto));
     }

@@ -28,7 +28,7 @@ public class LinkCreateDto {
     @NotBlank
     private String originalLink;
 
-    private String key;
+    private String key;//todo add link key annotation for validation
 
     @UniqueShortLink
     private String customLinkName;

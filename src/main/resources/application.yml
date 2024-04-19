@@ -3,81 +3,92 @@
 
 #  docker run -d --name redis -p 6379:6379 -p 8001:8001 redislabs/redis:latest --requirepass your_password
 
-minio:
-  url: http://localhost:9000
-  username: minioadmin
-  password: minioadmin
-  bucket: images
-
 link:
-  count-of-random-url-characters: 6
+  count-of-random-url-characters: ${COUNT_OF_RANDOM_URL_CHARACTERS}
 
 jwt:
-  secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  jwt-expiration: 86400000 # a day
-  refresh-expiration: 604800000
+  secret-key: ${JWT_SECRET}
+  jwt-expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
 
 token:
-  verify-email-expiration: 10
-  reset-password-expiration: 10
+  verify-email-expiration: ${VERIFY_EMAIL_EXPIRATION}
+  reset-password-expiration: ${RESET_PASSWORD_EXPIRATION}
+
+cache:
+  link-cache-name: ${LINK_CACHE_NAME}
+  link-cache-ttl-in-seconds: ${LINK_CACHE_TTL_IN_SECONDS}
+
+  redirect-cache-name: ${REDIRECT_CACHE_NAME}
+  redirect-cache-ttl-in-seconds: ${REDIRECT_CACHE_TTL_IN_SECONDS}
+
+  user-cache-name: ${USER_CACHE_NAME}
+  user-cache-ttl-in-seconds: ${USER_CACHE_TTL_IN_SECONDS}
+
+  image-cache-name: ${IMAGE_CACHE_NAME}
+  image-cache-ttl-in-seconds: ${IMAGE_CACHE_TTL_IN_SECONDS}
 
 
 server:
   error:
     include-message: always
     include-binding-errors: always
+    include-exception: true
+  port: ${APPLICATION_PORT}
 
 springdoc:
   swagger-ui:
     path: /swagger/ui
 
-#  show-login-endpoint: true
+minio:
+  url: ${MINIO_PROTOCOL}://${MINIO_HOST}:${MINIO_PORT}
+  username: ${MINIO_USERNAME}
+  password: ${MINIO_PASSWORD}
+  bucket: ${MINIO_BUCKET}
+
+
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   profiles:
     active:
-#      - test
-#      - prod
+      #      - test
+      #      - prod
       - dev
 
   cache:
     type: redis
     cache-names: redis-cache
-#    redis:
-#      time-to-live: 100000
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: 12345
-
-#  mvc:
-#    format:
-#      date-time: iso
-#      date: iso
-#      time: iso
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
 
   servlet:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 5MB
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shortlink?currentSchema=shortlink
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-#  devtools:
-#    restart:
-#      additional-paths: src/main/java/com/shortlink/webapp
-#      enabled: false
+  #  devtools:
+  #    restart:
+  #      additional-paths: src/main/java/com/shortlink/webapp
+  #      enabled: false
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: liroy2468@gmail.com
-    password: qsff wehe ndqj slbb
+    host: ${SPRING_MAIL_HOST}
+#    host: smtp.gmail.com
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
 
     properties:
       mail:
@@ -87,15 +98,10 @@ spring:
           starttls:
             enable: true
 
-  #  messages:
-#    basename: i18n/messages
-#    encoding: UTF-8
-
   liquibase:
     enabled: true
-#    enabled: false
     change-log: db/changelog/db.changelog-master.yml
-    default-schema: shortlink
+    default-schema: ${POSTGRES_SCHEMA}
 
   jpa:
     open-in-view: false
@@ -103,17 +109,12 @@ spring:
 
     properties:
       hibernate:
-#        enable_lazy_load_no_trans: true
-
         show_sql: true
         format_sql: true
-#        hbm2ddl.auto: create
         hbm2ddl.auto: validate
         fetch_size: 50
         batch_size: 50
-        default_schema: shortlink
-#        jdbc:
-#          time_zone: UTC
+        default_schema: ${POSTGRES_SCHEMA}
 
       org:
         hibernate:
@@ -121,11 +122,13 @@ spring:
             store_data_at_delete: true
             audit_table_suffix: _audit
             revision_field_name: revision_id
-#            revision_type_field_name:
 
 logging:
   level:
     org.springframework.cache: TRACE
+    org.springframework.data.redis: TRACE
+
+
 #logging:
 #  level:
 #    root: info
