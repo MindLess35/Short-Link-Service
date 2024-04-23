@@ -145,8 +145,5 @@ logging:
 #          redis:
 #            cache:
 #              RedisCacheManager: TRACE
-#
-#
-#
 #            core:
 #              RedisTemplate: TRACE

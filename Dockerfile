@@ -4,8 +4,13 @@ WORKDIR /
 COPY pom.xml /
 RUN --mount=type=cache,target=/.m2/repository mvn dependency:go-offline
 
-COPY /src /src
+COPY /src/main/resources /src/main/resources
 RUN --mount=type=cache,target=/.m2/src mvn dependency:resolve
+
+COPY /src/main/java /src/main/java
+RUN --mount=type=cache,target=/.m2/src mvn dependency:resolve
+
+COPY .env .env
 RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
