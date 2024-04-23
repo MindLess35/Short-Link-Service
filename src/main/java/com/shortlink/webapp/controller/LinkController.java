@@ -29,7 +29,7 @@ public class LinkController {
 
     @PostMapping
 //    @PreAuthorize("permitAll")
-    public ResponseEntity<LinkReadDto> createShortLink(@RequestBody LinkCreateDto linkCreateDto) {
+    public ResponseEntity<LinkReadDto> createShortLink(@RequestBody @Validated LinkCreateDto linkCreateDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(linkService.createLink(linkCreateDto));
     }
 

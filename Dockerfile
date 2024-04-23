@@ -1,20 +1,26 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY .env .
-COPY pom.xml .
+WORKDIR /
 
-COPY /src ./src
-RUN #mvn clean package -DskipTests -Dmaven.repo.local=/usr/share/maven/ref/repository
-RUN --mount=type=cache,target=/.m2/repository mvn clean package -DskipTests
+COPY pom.xml /
+RUN --mount=type=cache,target=/.m2/repository mvn dependency:go-offline
+
+COPY /src /src
+RUN --mount=type=cache,target=/.m2/src mvn dependency:resolve
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
-COPY --from=build /app/target/*.jar application.jar
+COPY --from=build /target/*.jar application.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "application.jar"]
 
-#RUN mvn clean package -DskipTests -Dmaven.repo.local=/usr/share/maven/ref/repository dependency:go-offline
+#RUN --mount=type=cache,target=/.m2/src mvn dependency:go-offline
+#RUN --mount=type=cache,target=/.m2/repository mvn clean package -DskipTests
+#RUN mvn clean package -DskipTests -Dmaven.repo.local=C:\Users\NiKiToS\.m2\repository
+#RUN mvn clean package -DskipTests -Dmaven.repo.local=~/.m2/repository
+#RUN mvn clean package -DskipTests -Dmaven.repo.local=~/.m2/repository dependency:go-offline
 #RUN mvn dependency:go-offline
-# Сборка приложения
+#RUN mvn dependency:go-offline -B
+
 #FROM maven:3.8.4-openjdk-17 AS build
 #WORKDIR /app
 #COPY pom.xml .
@@ -22,7 +28,6 @@ ENTRYPOINT ["java", "-jar", "application.jar"]
 #COPY src ./src
 #RUN mvn package -DskipTests
 #
-## Запуск приложения
 #FROM openjdk:17-jre-slim
 #WORKDIR /app
 #COPY --from=build /app/target/my-application.jar application.jar
@@ -82,6 +87,24 @@ ENTRYPOINT ["java", "-jar", "application.jar"]
 #RUN mvn -f pom.xml clean package -DskipTests
 #
 #FROM openjdk:17-jre-slim
+#COPY --from=build /app/target/*.jar application.jar
+#EXPOSE 8080
+#ENTRYPOINT ["java", "-jar", "application.jar"]
+
+#----------------------------------------------------
+
+#FROM maven:3.9-eclipse-temurin-17 AS build
+#WORKDIR /
+#COPY .env /
+#COPY pom.xml /
+#
+#RUN mvn clean package
+#
+#COPY /src /src
+#
+#RUN mvn package -DskipTests
+#
+#FROM eclipse-temurin:17-jre
 #COPY --from=build /app/target/*.jar application.jar
 #EXPOSE 8080
 #ENTRYPOINT ["java", "-jar", "application.jar"]

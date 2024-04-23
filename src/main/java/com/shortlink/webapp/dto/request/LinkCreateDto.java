@@ -1,5 +1,6 @@
 package com.shortlink.webapp.dto.request;
 
+import com.shortlink.webapp.validation.annotation.LinkAccessKey;
 import com.shortlink.webapp.validation.annotation.UniqueShortLink;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
@@ -28,6 +29,7 @@ public class LinkCreateDto {
     @NotBlank
     private String originalLink;
 
+    @LinkAccessKey
     private String key;//todo add link key annotation for validation
 
     @UniqueShortLink

@@ -7,8 +7,9 @@ import com.shortlink.webapp.dto.response.AllUsersReadDto;
 import com.shortlink.webapp.dto.response.UserReadDto;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.Role;
-import com.shortlink.webapp.exception.user.InvalidPasswordException;
+import com.shortlink.webapp.exception.user.password.InvalidPasswordException;
 import com.shortlink.webapp.exception.base.ResourceNotFoundException;
+import com.shortlink.webapp.exception.user.password.PasswordConfirmationException;
 import com.shortlink.webapp.mapper.UserReadDtoMapper;
 import com.shortlink.webapp.mapper.UserUpdateDtoMapper;
 import com.shortlink.webapp.repository.UserRepository;
@@ -117,8 +118,8 @@ public class UserService {
     @Transactional
     public void changePassword(Long id, ChangePasswordDto passwordDto) {
         if (!passwordDto.getNewPassword().equals(passwordDto.getConfirmationPassword()))
-            throw new InvalidPasswordException("the new password and its confirmation do not match");
-
+            throw new PasswordConfirmationException("The new password and its confirmation do not match");
+//todo add normal message
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with id %s does not exists".formatted(id)));

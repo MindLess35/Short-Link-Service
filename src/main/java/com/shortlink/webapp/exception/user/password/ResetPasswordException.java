@@ -1,4 +1,4 @@
-package com.shortlink.webapp.exception.user;
+package com.shortlink.webapp.exception.user.password;
 
 import com.shortlink.webapp.exception.base.BadRequestBaseException;
 

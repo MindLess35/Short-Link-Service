@@ -5,8 +5,8 @@ import com.shortlink.webapp.dto.request.ResetPasswordDto;
 import com.shortlink.webapp.entity.ResetPassword;
 import com.shortlink.webapp.entity.User;
 import com.shortlink.webapp.entity.enums.MailType;
-import com.shortlink.webapp.exception.user.InvalidPasswordException;
-import com.shortlink.webapp.exception.user.ResetPasswordException;
+import com.shortlink.webapp.exception.user.password.PasswordConfirmationException;
+import com.shortlink.webapp.exception.user.password.ResetPasswordException;
 import com.shortlink.webapp.exception.base.ResourceNotFoundException;
 import com.shortlink.webapp.property.TokenProperty;
 import com.shortlink.webapp.repository.ResetPasswordRepository;
@@ -54,10 +54,10 @@ public class ResetPasswordService {
     public void resetPassword(ResetPasswordDto dto, String token) {
         String newPassword = dto.getNewPassword();
         if (!newPassword.equals(dto.getConfirmationPassword()))
-            throw new InvalidPasswordException("The new password and its confirmation do not match");
+            throw new PasswordConfirmationException("The new password and its confirmation do not match");
 
         ResetPasswordWithUserProjection projection = resetPasswordRepository.findByToken(token)
-                .orElseThrow(() -> new ResetPasswordException("Token %s does not exists".formatted(token)));
+                .orElseThrow(() -> new ResourceNotFoundException("Token %s does not exists".formatted(token)));
 
         if (projection.getResetAt() != null)
             throw new ResetPasswordException("Reset password token already used !");

@@ -98,6 +98,7 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers("/api/v1/users/**").authenticated()
+
                 .anyRequest().permitAll());
 //                        .requestMatchers(WHITE_LIST_URL)
 //                        .permitAll()
@@ -129,6 +130,8 @@ public class SecurityConfig {
                 .logoutSuccessHandler((request, response, authentication) ->
                         SecurityContextHolder.clearContext())
         );
+
+//        httpSecurity.exceptionHandling(e -> e.authenticationEntryPoint())
 
         return httpSecurity.build();
     }
