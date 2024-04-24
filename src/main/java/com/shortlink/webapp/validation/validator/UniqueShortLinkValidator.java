@@ -1,6 +1,6 @@
 package com.shortlink.webapp.validation.validator;
 
-import com.shortlink.webapp.repository.LinkRepository;
+import com.shortlink.webapp.repository.jpa.link.LinkRepository;
 import com.shortlink.webapp.util.LinkUtil;
 import com.shortlink.webapp.validation.annotation.UniqueShortLink;
 import jakarta.validation.ConstraintValidator;

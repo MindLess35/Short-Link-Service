@@ -1,6 +1,6 @@
 package com.shortlink.webapp.config;
 
-import com.shortlink.webapp.property.MinioProperty;
+import com.shortlink.webapp.domain.property.MinioProperty;
 import io.minio.MinioClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

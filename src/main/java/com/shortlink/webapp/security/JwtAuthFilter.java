@@ -1,8 +1,7 @@
 package com.shortlink.webapp.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shortlink.webapp.repository.TokenRepository;
-import com.shortlink.webapp.service.JwtService;
+import com.shortlink.webapp.repository.jpa.user.TokenRepository;
+import com.shortlink.webapp.service.impl.auth.JwtServiceImpl;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,7 +27,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
+    private final JwtServiceImpl jwtServiceImpl;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
 
@@ -54,12 +52,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
             jwt = authHeader.substring(7);
-            username = jwtService.extractUsername(jwt);
+            username = jwtServiceImpl.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                boolean isTokenValidExtracted = jwtService.isTokenValid(jwt, userDetails);
+                boolean isTokenValidExtracted = jwtServiceImpl.isTokenValid(jwt, userDetails);
 
                 boolean isTokenValidRetrieved = tokenRepository.findByToken(jwt)
                         .map(t -> !t.isExpired() && !t.isRevoked())

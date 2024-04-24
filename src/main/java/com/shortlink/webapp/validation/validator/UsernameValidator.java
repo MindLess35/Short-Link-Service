@@ -1,6 +1,6 @@
 package com.shortlink.webapp.validation.validator;
 
-import com.shortlink.webapp.repository.UserRepository;
+import com.shortlink.webapp.repository.jpa.user.UserRepository;
 import com.shortlink.webapp.validation.annotation.Username;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

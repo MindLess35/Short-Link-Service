@@ -1,8 +1,8 @@
 package com.shortlink.webapp.security;
 
-import com.shortlink.webapp.entity.User;
-import com.shortlink.webapp.entity.enums.Role;
-import com.shortlink.webapp.repository.LinkRepository;
+import com.shortlink.webapp.domain.entity.user.User;
+import com.shortlink.webapp.domain.enums.Role;
+import com.shortlink.webapp.repository.jpa.link.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

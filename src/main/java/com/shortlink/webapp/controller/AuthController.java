@@ -1,10 +1,10 @@
 package com.shortlink.webapp.controller;
 
-import com.shortlink.webapp.dto.request.UserCreateDto;
-import com.shortlink.webapp.dto.request.UserLoginDto;
-import com.shortlink.webapp.dto.response.JwtResponseDto;
-import com.shortlink.webapp.service.AuthService;
-import com.shortlink.webapp.service.MailVerificationService;
+import com.shortlink.webapp.dto.user.response.UserCreateDto;
+import com.shortlink.webapp.dto.user.response.UserLoginDto;
+import com.shortlink.webapp.dto.security.JwtResponseDto;
+import com.shortlink.webapp.service.impl.mail.MailVerificationServiceImpl;
+import com.shortlink.webapp.service.interfaces.auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    private final MailVerificationService mailVerificationService;
-//    private final UserService userService;
-
 
     @PostMapping("/sign-up")
     public ResponseEntity<JwtResponseDto> register(@RequestBody UserCreateDto userCreateDto) {

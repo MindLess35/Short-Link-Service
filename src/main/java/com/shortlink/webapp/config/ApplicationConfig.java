@@ -1,6 +1,6 @@
 package com.shortlink.webapp.config;
 
-import com.shortlink.webapp.repository.UserRepository;
+import com.shortlink.webapp.repository.jpa.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.shortlink.webapp.config;
 
-import com.shortlink.webapp.property.CacheProperty;
+import com.shortlink.webapp.domain.property.CacheProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.CacheManager;

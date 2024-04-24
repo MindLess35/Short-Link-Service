@@ -1,11 +1,11 @@
 package com.shortlink.webapp.handler;
 
-import com.shortlink.webapp.exception.base.BadRequestBaseException;
-import com.shortlink.webapp.exception.base.ResourceNotFoundException;
-import com.shortlink.webapp.exception.response.ResponseErrorBody;
-import com.shortlink.webapp.exception.response.ResponseViolationErrorBody;
-import com.shortlink.webapp.exception.user.password.InvalidPasswordException;
-import com.shortlink.webapp.exception.user.password.PasswordConfirmationException;
+import com.shortlink.webapp.domain.exception.base.BadRequestBaseException;
+import com.shortlink.webapp.domain.exception.base.ResourceNotFoundException;
+import com.shortlink.webapp.domain.exception.response.ResponseErrorBody;
+import com.shortlink.webapp.domain.exception.response.ResponseViolationErrorBody;
+import com.shortlink.webapp.domain.exception.user.password.InvalidPasswordException;
+import com.shortlink.webapp.domain.exception.user.password.PasswordConfirmationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
