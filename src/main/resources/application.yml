@@ -107,8 +107,8 @@ spring:
 #    client:
 #      registration:
 #        google:
-#          clientId: 683078134097-228jgon9bc7ud9qfqkm3gam1k5b75pf8.apps.googleusercontent.com
-#          clientSecret: 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
+#          clientId:
+#          clientSecret:
 #          redirectUri: http://localhost:8080/login/oauth2/code/google
 #          scope: openid,email,profile
   jpa:
@@ -137,16 +137,16 @@ spring:
       client:
         registration:
           google:
-            clientId: 279970362930-8ijd7v9hk81078j9etnot9t8kvltg78h.apps.googleusercontent.com
-            clientSecret: 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
+            clientId:
+            clientSecret:
             redirectUri: http://localhost:8080/login/oauth2/code/google
             scope: openid,email,profile
 
 springdoc:
   swagger-ui:
     oauth:
-      client-id: 279970362930-8ijd7v9hk81078j9etnot9t8kvltg78h.apps.googleusercontent.com
-      client-secret: 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
+      client-id:
+      client-secret:
       scopes: openid,email,profile
     oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
 #    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
@@ -156,8 +156,8 @@ springdoc:
 #springdoc:
 #  swagger-ui:
 #    oauth:
-#      client-id: 683078134097-228jgon9bc7ud9qfqkm3gam1k5b75pf8.apps.googleusercontent.com
-#      client-secret: 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
+#      client-id:
+#      client-secret:
 #      scopes: openid,email,profile
 #    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
 
