@@ -36,10 +36,6 @@ server:
     include-exception: true
   port: ${APPLICATION_PORT}
 
-springdoc:
-  swagger-ui:
-    path: /swagger/ui
-
 minio:
   url: ${MINIO_PROTOCOL}://${MINIO_HOST}:${MINIO_PORT}
   username: ${MINIO_USERNAME}
@@ -105,6 +101,16 @@ spring:
     change-log: db/changelog/db.changelog-master.yml
     default-schema: ${POSTGRES_SCHEMA}
 
+
+#security:
+#  oauth2:
+#    client:
+#      registration:
+#        google:
+#          clientId: 683078134097-228jgon9bc7ud9qfqkm3gam1k5b75pf8.apps.googleusercontent.com
+#          clientSecret: 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
+#          redirectUri: http://localhost:8080/login/oauth2/code/google
+#          scope: openid,email,profile
   jpa:
     open-in-view: false
     database: postgresql
@@ -125,11 +131,41 @@ spring:
             audit_table_suffix: _audit
             revision_field_name: revision_id
 
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 279970362930-8ijd7v9hk81078j9etnot9t8kvltg78h.apps.googleusercontent.com
+            clientSecret: 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
+            redirectUri: http://localhost:8080/login/oauth2/code/google
+            scope: openid,email,profile
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: 279970362930-8ijd7v9hk81078j9etnot9t8kvltg78h.apps.googleusercontent.com
+      client-secret: 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
+      scopes: openid,email,profile
+    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+#    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+#    path: /swagger/ui
+#      oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+
+#springdoc:
+#  swagger-ui:
+#    oauth:
+#      client-id: 683078134097-228jgon9bc7ud9qfqkm3gam1k5b75pf8.apps.googleusercontent.com
+#      client-secret: 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
+#      scopes: openid,email,profile
+#    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+
+
 logging:
   level:
     org.springframework.cache: TRACE
     org.springframework.data.redis: TRACE
-
 
 #logging:
 #  level:
